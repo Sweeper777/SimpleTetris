@@ -17,6 +17,8 @@
 		5AFEC0F31D9FC3910054FAAA /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5AFEC0F11D9FC3910054FAAA /* LaunchScreen.storyboard */; };
 		5AFEC0FC1D9FC5340054FAAA /* EZSwiftExtensions.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5AFEC0FA1D9FC5340054FAAA /* EZSwiftExtensions.framework */; };
 		5AFEC0FD1D9FC5340054FAAA /* HLSpriteKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5AFEC0FB1D9FC5340054FAAA /* HLSpriteKit.framework */; };
+		5AFED87A1DA10BFD00B0FB39 /* TetrisScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 5AFED8791DA10BFD00B0FB39 /* TetrisScene.sks */; };
+		5AFED87C1DA10C4000B0FB39 /* TetrisScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AFED87B1DA10C4000B0FB39 /* TetrisScene.swift */; };
 		DE2B6DA7BE2CC352D9BE89FB /* Pods_SimpleTetris.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F4144C4C4E932A1C4947224 /* Pods_SimpleTetris.framework */; };
 /* End PBXBuildFile section */
 
@@ -35,6 +37,8 @@
 		5AFEC0F41D9FC3910054FAAA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5AFEC0FA1D9FC5340054FAAA /* EZSwiftExtensions.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = EZSwiftExtensions.framework; path = "../../Library/Developer/Xcode/DerivedData/SimpleTetris-egikindlrixorraeplzahzqokebm/Build/Products/Debug-iphonesimulator/EZSwiftExtensions/EZSwiftExtensions.framework"; sourceTree = "<group>"; };
 		5AFEC0FB1D9FC5340054FAAA /* HLSpriteKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HLSpriteKit.framework; path = "Pods/../build/Debug-iphoneos/HLSpriteKit/HLSpriteKit.framework"; sourceTree = "<group>"; };
+		5AFED8791DA10BFD00B0FB39 /* TetrisScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = TetrisScene.sks; sourceTree = "<group>"; };
+		5AFED87B1DA10C4000B0FB39 /* TetrisScene.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TetrisScene.swift; sourceTree = "<group>"; };
 		83541D7CA0A116FF2D10C79F /* Pods-SimpleTetris.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SimpleTetris.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SimpleTetris/Pods-SimpleTetris.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -75,8 +79,10 @@
 			children = (
 				5AFEC0E21D9FC3910054FAAA /* AppDelegate.swift */,
 				5AFEC0E41D9FC3910054FAAA /* GameScene.sks */,
+				5AFED8791DA10BFD00B0FB39 /* TetrisScene.sks */,
 				5AFEC0E61D9FC3910054FAAA /* Actions.sks */,
 				5AFEC0E81D9FC3910054FAAA /* GameScene.swift */,
+				5AFED87B1DA10C4000B0FB39 /* TetrisScene.swift */,
 				5AFEC0EA1D9FC3910054FAAA /* GameViewController.swift */,
 				5AFEC0EC1D9FC3910054FAAA /* Main.storyboard */,
 				5AFEC0EF1D9FC3910054FAAA /* Assets.xcassets */,
@@ -169,6 +175,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5AFEC0EE1D9FC3910054FAAA /* Main.storyboard in Resources */,
+				5AFED87A1DA10BFD00B0FB39 /* TetrisScene.sks in Resources */,
 				5AFEC0E51D9FC3910054FAAA /* GameScene.sks in Resources */,
 				5AFEC0F01D9FC3910054FAAA /* Assets.xcassets in Resources */,
 				5AFEC0F31D9FC3910054FAAA /* LaunchScreen.storyboard in Resources */,
@@ -232,6 +239,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				5AFEC0E91D9FC3910054FAAA /* GameScene.swift in Sources */,
+				5AFED87C1DA10C4000B0FB39 /* TetrisScene.swift in Sources */,
 				5AFEC0EB1D9FC3910054FAAA /* GameViewController.swift in Sources */,
 				5AFEC0E31D9FC3910054FAAA /* AppDelegate.swift in Sources */,
 			);
