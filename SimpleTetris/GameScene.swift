@@ -31,7 +31,8 @@ class GameScene: SKScene {
                 let animation = SKAction.animate(with: [atlas.textureNamed("startButton_p"), atlas.textureNamed("startButton")], timePerFrame: 0.2)
                 startButton.run(animation)
                 let tetrisScene = TetrisScene(fileNamed: "TetrisScene")
-                let transition = SKTransition.moveIn(with: .right, duration: 0.5)
+                tetrisScene!.scaleMode = .aspectFit
+                let transition = SKTransition.push(with: .left, duration: 0.5)
                 self.view!.presentScene(tetrisScene!, transition: transition)
                 break
             }
