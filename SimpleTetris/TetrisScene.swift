@@ -21,5 +21,6 @@ class TetrisScene: SKScene {
         
         tetrisBoard = TetrisBoard(scene: self)
         let block = TetrisBlock(x: 0, y: 0, texture: SKTexture(imageNamed: "ltetrimino"), tetrisBoard: tetrisBoard)
+        tetrisBoard.syncModel()
     }
 }

@@ -10,17 +10,8 @@ public class TetrisBlock {
     
     weak var tetrisBoard: TetrisBoard?
     
-    var x: Int {
-        didSet {
-            
-        }
-    }
-    
-    var y: Int {
-        didSet {
-            
-        }
-    }
+    var x: Int
+    var y: Int
     
     func moveDown() {
         y -= 1

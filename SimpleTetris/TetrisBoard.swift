@@ -2,11 +2,7 @@ import SpriteKit
 import HLSpriteKit
 
 public class TetrisBoard {
-    var tetrisBlocks: [[TetrisBlock?]] {
-        didSet {
-            scene!.tetrisGrid.setContent(tetrisBlocks.flatMap { $0 }.map { $0?.node ?? SKSpriteNode(color: UIColor.black, size: CGSize.zero) })
-        }
-    }
+    var tetrisBlocks: [[TetrisBlock?]]
     
     weak var scene: TetrisScene?
     
@@ -20,5 +16,9 @@ public class TetrisBoard {
 //                tetrisBlocks[i][j] =
 //            }
 //        }
+    }
+    
+    func syncModel() {
+        scene!.tetrisGrid.setContent(tetrisBlocks.flatMap { $0 }.map { $0?.node ?? SKSpriteNode(color: UIColor.black, size: CGSize.zero) })
     }
 }
