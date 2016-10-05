@@ -29,11 +29,12 @@ class GameScene: SKScene {
             if self.nodes(at: location).contains(startButton) {
                 let atlas = SKTextureAtlas(named: "startButton")
                 let animation = SKAction.animate(with: [atlas.textureNamed("startButton_p"), atlas.textureNamed("startButton")], timePerFrame: 0.2)
-                startButton.run(animation)
-                let tetrisScene = TetrisScene(fileNamed: "TetrisScene")
-                tetrisScene!.scaleMode = .aspectFit
-                let transition = SKTransition.push(with: .left, duration: 0.5)
-                self.view!.presentScene(tetrisScene!, transition: transition)
+                startButton.run(SKAction.sequence([animation, SKAction.run {
+                    let tetrisScene = TetrisScene(fileNamed: "TetrisScene")
+                    tetrisScene!.scaleMode = .aspectFit
+                    let transition = SKTransition.push(with: .left, duration: 0.5)
+                    self.view!.presentScene(tetrisScene!, transition: transition)
+                    }]))
                 break
             }
         }
