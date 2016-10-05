@@ -4,6 +4,7 @@ import HLSpriteKit
 class TetrisScene: SKScene {
     var background: SKSpriteNode!
     var tetrisGrid: HLGridNode!
+    var tetrisBoard: TetrisBoard!
     
     override func didMove(to view: SKView) {
         background = self.childNode(withName: "bg") as! SKSpriteNode
@@ -17,5 +18,8 @@ class TetrisScene: SKScene {
         background.addChild(tetrisGrid)
         
         background.hlLayoutChildren()
+        
+        tetrisBoard = TetrisBoard(scene: self)
+        let block = TetrisBlock(x: 0, y: 0, texture: SKTexture(imageNamed: "ltetrimino"), tetrisBoard: tetrisBoard)
     }
 }
