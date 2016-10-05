@@ -10,12 +10,6 @@ public class TetrisBoard {
         self.scene = scene
         let repeating: [TetrisBlock?] = [TetrisBlock?](repeating: nil, count: 20)
         tetrisBlocks = [[TetrisBlock?]](repeating: repeating, count: 10)
-        
-//        for i in 0..<tetrisBlocks.count {
-//            for j in 0..<tetrisBlocks[i].count {
-//                tetrisBlocks[i][j] =
-//            }
-//        }
     }
     
     func syncModel() {

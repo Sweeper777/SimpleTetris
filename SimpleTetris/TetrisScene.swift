@@ -20,7 +20,7 @@ class TetrisScene: SKScene {
         background.hlLayoutChildren()
         
         tetrisBoard = TetrisBoard(scene: self)
-        let block = TetrisBlock(x: 0, y: 0, texture: SKTexture(imageNamed: "ltetrimino"), tetrisBoard: tetrisBoard)
+        let block = TetrisBlock(x: 9, y: 19, texture: SKTexture(imageNamed: "ltetrimino"), tetrisBoard: tetrisBoard)
         tetrisBoard.syncModel()
     }
 }
