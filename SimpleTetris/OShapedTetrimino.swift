@@ -2,7 +2,7 @@ import HLSpriteKit
 
 class OShapedTetrimino : Tetrimino {
     override var touchingSides: [TetrisBlock] {
-        return [blocks[1], blocks[2]]
+        return [blocks[1], blocks[3]]
     }
     
     override init(tetrisBoard: TetrisBoard) {
