@@ -6,6 +6,8 @@ public class TetrisBoard {
     
     weak var scene: TetrisScene?
     
+    var tetriminoSpeed: TimeInterval = 1
+    
     init(scene: TetrisScene) {
         self.scene = scene
         let repeating: [TetrisBlock?] = [TetrisBlock?](repeating: nil, count: 20)
@@ -13,6 +15,16 @@ public class TetrisBoard {
     }
     
     func syncModel() {
-        scene!.tetrisGrid.setContent(tetrisBlocks.flatMap { $0 }.map { $0?.node ?? SKSpriteNode(color: UIColor.black, size: CGSize.zero) })
+        func flatten(_ array: [[TetrisBlock?]]) -> [TetrisBlock?] {
+            var flat = [TetrisBlock?]()
+            for i in 0..<20 {
+                for sub in array {
+                    flat.append(sub[i])
+                }
+            }
+            return flat
+        }
+
+        scene!.tetrisGrid.setContent(flatten(tetrisBlocks).map { $0?.node ?? NSNull() })
     }
 }
