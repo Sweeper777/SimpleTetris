@@ -14,7 +14,7 @@ public class TetrisBlock {
     var y: Int
     
     func moveDown() {
-        y -= 1
+        y += 1
     }
     
     init(x: Int, y: Int, texture: SKTexture, tetrisBoard: TetrisBoard) {
