@@ -5,6 +5,7 @@ class TetrisScene: SKScene {
     var background: SKSpriteNode!
     var tetrisGrid: HLGridNode!
     var tetrisBoard: TetrisBoard!
+    var fallingTetrimino: Tetrimino!
     
     override func didMove(to view: SKView) {
         background = self.childNode(withName: "bg") as! SKSpriteNode
@@ -20,7 +21,7 @@ class TetrisScene: SKScene {
         background.hlLayoutChildren()
         
         tetrisBoard = TetrisBoard(scene: self)
-        let tetrimino = OShapedTetrimino(tetrisBoard: tetrisBoard)
+        fallingTetrimino = OShapedTetrimino(tetrisBoard: tetrisBoard)
         tetrisBoard.syncModel()
     }
 }

@@ -45,7 +45,13 @@ class Tetrimino {
     
     func moveDown() {
         if !landed() {
-            for block in blocks {
+            let allBlocksSet = Set<TetrisBlock>(blocks)
+            let rest = allBlocksSet.subtracting(touchingSides)
+            
+            for block in touchingSides {
+                block.moveDown()
+            }
+            for block in rest {
                 block.moveDown()
             }
             tetrisBoard.syncModel()
