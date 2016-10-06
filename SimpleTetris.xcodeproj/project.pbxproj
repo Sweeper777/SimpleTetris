@@ -21,6 +21,9 @@
 		5AFEC0FD1D9FC5340054FAAA /* HLSpriteKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5AFEC0FB1D9FC5340054FAAA /* HLSpriteKit.framework */; };
 		5AFED87A1DA10BFD00B0FB39 /* TetrisScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 5AFED8791DA10BFD00B0FB39 /* TetrisScene.sks */; };
 		5AFED87C1DA10C4000B0FB39 /* TetrisScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AFED87B1DA10C4000B0FB39 /* TetrisScene.swift */; };
+		5AFF9B781DA579EE00374C6D /* Rotatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AFF9B771DA579EE00374C6D /* Rotatable.swift */; };
+		5AFF9B7A1DA57AA200374C6D /* Tetrimino.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AFF9B791DA57AA200374C6D /* Tetrimino.swift */; };
+		5AFF9B7C1DA5849300374C6D /* OShapedTetrimino.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AFF9B7B1DA5849300374C6D /* OShapedTetrimino.swift */; };
 		DE2B6DA7BE2CC352D9BE89FB /* Pods_SimpleTetris.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F4144C4C4E932A1C4947224 /* Pods_SimpleTetris.framework */; };
 /* End PBXBuildFile section */
 
@@ -43,6 +46,9 @@
 		5AFEC0FB1D9FC5340054FAAA /* HLSpriteKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HLSpriteKit.framework; path = "Pods/../build/Debug-iphoneos/HLSpriteKit/HLSpriteKit.framework"; sourceTree = "<group>"; };
 		5AFED8791DA10BFD00B0FB39 /* TetrisScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = TetrisScene.sks; sourceTree = "<group>"; };
 		5AFED87B1DA10C4000B0FB39 /* TetrisScene.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TetrisScene.swift; sourceTree = "<group>"; };
+		5AFF9B771DA579EE00374C6D /* Rotatable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Rotatable.swift; sourceTree = "<group>"; };
+		5AFF9B791DA57AA200374C6D /* Tetrimino.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tetrimino.swift; sourceTree = "<group>"; };
+		5AFF9B7B1DA5849300374C6D /* OShapedTetrimino.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OShapedTetrimino.swift; sourceTree = "<group>"; };
 		83541D7CA0A116FF2D10C79F /* Pods-SimpleTetris.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SimpleTetris.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SimpleTetris/Pods-SimpleTetris.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -94,6 +100,9 @@
 				5AFEC0F41D9FC3910054FAAA /* Info.plist */,
 				5AFC75D41DA2370E00565890 /* TetrisBlock.swift */,
 				5AFC75D61DA2382400565890 /* TetrisBoard.swift */,
+				5AFF9B771DA579EE00374C6D /* Rotatable.swift */,
+				5AFF9B791DA57AA200374C6D /* Tetrimino.swift */,
+				5AFF9B7B1DA5849300374C6D /* OShapedTetrimino.swift */,
 			);
 			path = SimpleTetris;
 			sourceTree = "<group>";
@@ -247,7 +256,10 @@
 				5AFEC0E91D9FC3910054FAAA /* GameScene.swift in Sources */,
 				5AFC75D71DA2382400565890 /* TetrisBoard.swift in Sources */,
 				5AFC75D51DA2370E00565890 /* TetrisBlock.swift in Sources */,
+				5AFF9B781DA579EE00374C6D /* Rotatable.swift in Sources */,
+				5AFF9B7C1DA5849300374C6D /* OShapedTetrimino.swift in Sources */,
 				5AFED87C1DA10C4000B0FB39 /* TetrisScene.swift in Sources */,
+				5AFF9B7A1DA57AA200374C6D /* Tetrimino.swift in Sources */,
 				5AFEC0EB1D9FC3910054FAAA /* GameViewController.swift in Sources */,
 				5AFEC0E31D9FC3910054FAAA /* AppDelegate.swift in Sources */,
 			);
