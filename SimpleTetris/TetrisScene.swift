@@ -21,7 +21,17 @@ class TetrisScene: SKScene {
         background.hlLayoutChildren()
         
         tetrisBoard = TetrisBoard(scene: self)
-        fallingTetrimino = OShapedTetrimino(tetrisBoard: tetrisBoard)
-        tetrisBoard.syncModel()
+        fallingTetrimino = IShapedTetrimino(tetrisBoard: tetrisBoard, rotationIndex: 0)
+        
+        let moveLeft = SKAction.run {
+            self.fallingTetrimino.move(.left)
+        }
+        let moveRight = SKAction.run {
+            self.fallingTetrimino.move(.right)
+        }
+        let wait = SKAction.wait(forDuration: 3.5)
+        let longWait = SKAction.wait(forDuration: 7)
+        self.run(SKAction.sequence([wait, moveLeft]))
+        self.run(SKAction.sequence([longWait, moveRight]))
     }
 }
