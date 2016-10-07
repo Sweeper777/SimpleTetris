@@ -48,10 +48,30 @@ class Tetrimino {
             for block in blocks {
                 block.moveDown()
             }
+            updatePosition()
             tetrisBoard.syncModel()
         } else {
             tetrisBoard.scene!.removeAllActions()
             onLanded?()
+        }
+    }
+    
+    func move(_ direction: Direction) {
+        let finalPositions = blocks.map { ($0.x + direction.rawValue, $0.y) }
+        for (index, position) in finalPositions.enumerated() {
+            if !isPositionValid(x: position.0, y: position.1) {
+                return
+            }
+            blocks[index].node.removeFromParent()
+            blocks[index].x = position.0
+        }
+        updatePosition()
+        tetrisBoard.syncModel()
+    }
+    
+    func updatePosition() {
+        for tetrisBlock in blocks {
+            tetrisBlock.updatePosition()
         }
     }
     
@@ -62,4 +82,9 @@ class Tetrimino {
         let moveDown = SKAction.run {[weak self] in self?.moveDown() }
         self.tetrisBoard.scene!.run(SKAction.repeatForever(SKAction.sequence([wait, moveDown])))
     }
+}
+
+enum Direction: Int {
+    case left = -1
+    case right = 1
 }

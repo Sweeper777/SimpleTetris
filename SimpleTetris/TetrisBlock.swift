@@ -13,19 +13,21 @@ public class TetrisBlock {
     var x: Int {
         didSet {
             self.tetrisBoard!.tetrisBlocks[oldValue][y] = nil
-            self.tetrisBoard!.tetrisBlocks[x][y] = self
         }
     }
     
     var y: Int {
         didSet {
             self.tetrisBoard!.tetrisBlocks[x][oldValue] = nil
-            self.tetrisBoard!.tetrisBlocks[x][y] = self
         }
     }
     
     func moveDown() {
         y += 1
+    }
+    
+    func updatePosition() {
+        self.tetrisBoard!.tetrisBlocks[x][y] = self
     }
     
     init(x: Int, y: Int, texture: SKTexture, tetrisBoard: TetrisBoard) {
