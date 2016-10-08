@@ -20,6 +20,17 @@ class TetrisScene: SKScene {
         tetrisGrid.squareColor = UIColor.black
         background.addChild(tetrisGrid)
         
+        let buttonGrid = HLGridNode(gridWidth: 6, squareCount: 6, anchorPoint: CGPoint(x: 0.5, y: 0.5), layoutMode: .fill, squareSize: CGSize(width: 100, height: 100), backgroundBorderSize: 0, squareSeparatorSize: 1)!
+        buttonGrid.backgroundColor = UIColor.clear
+        buttonGrid.squareColor = UIColor.clear
+        
+        let leftButton = ButtonNode(imageNamed: "leftButton")
+        leftButton.pressedTexture = SKTexture(imageNamed: "leftButton_p")
+        leftButton.unpressedTexture = SKTexture(imageNamed: "leftButton")
+        leftButton.onClick = { print("pressed") }
+        
+        buttonGrid.setContent([leftButton, NSNull(), NSNull(), NSNull(), NSNull(), NSNull()])
+        background.addChild(buttonGrid)
         background.hlLayoutChildren()
         
         tetrisBoard = TetrisBoard(scene: self)
@@ -35,5 +46,14 @@ class TetrisScene: SKScene {
         let longWait = SKAction.wait(forDuration: 7)
         self.run(SKAction.sequence([wait, moveLeft]))
         self.run(SKAction.sequence([longWait, moveRight]))
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        for touch in touches {
+            let location = touch.location(in: self)
+            if let button = self.nodes(at: location).first as? ButtonNode {
+                button.onTouch()
+            }
+        }
     }
 }
