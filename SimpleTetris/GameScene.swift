@@ -24,8 +24,6 @@ class GameScene: SKScene {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         for touch in touches {
             let location = touch.location(in: self)
-            print(frame)
-            print(location)
             if self.nodes(at: location).contains(startButton) {
                 let atlas = SKTextureAtlas(named: "startButton")
                 let animation = SKAction.animate(with: [atlas.textureNamed("startButton_p"), atlas.textureNamed("startButton")], timePerFrame: 0.2)
