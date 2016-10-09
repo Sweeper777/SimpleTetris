@@ -27,25 +27,24 @@ class TetrisScene: SKScene {
         let leftButton = ButtonNode(imageNamed: "leftButton")
         leftButton.pressedTexture = SKTexture(imageNamed: "leftButton_p")
         leftButton.unpressedTexture = SKTexture(imageNamed: "leftButton")
-        leftButton.onClick = { print("pressed") }
+        leftButton.onClick = { [weak self] in self?.fallingTetrimino?.move(.left) }
         
-        buttonGrid.setContent([leftButton, NSNull(), NSNull(), NSNull(), NSNull(), NSNull()])
+        let rightButton = ButtonNode(imageNamed: "rightButton")
+        rightButton.pressedTexture = SKTexture(imageNamed: "rightButton_p")
+        rightButton.unpressedTexture = SKTexture(imageNamed: "rightButton")
+        rightButton.onClick = { [weak self] in self?.fallingTetrimino?.move(.right) }
+        
+        let rotateButton = ButtonNode(imageNamed: "rotateButton")
+        rotateButton.pressedTexture = SKTexture(imageNamed: "rotateButton_p")
+        rotateButton.unpressedTexture = SKTexture(imageNamed: "rotateButton")
+        rotateButton.onClick = { [weak self] in (self?.fallingTetrimino as? Rotatable)?.rotate() }
+        
+        buttonGrid.setContent([leftButton, rightButton, rotateButton, NSNull(), NSNull(), NSNull()])
         background.addChild(buttonGrid)
         background.hlLayoutChildren()
         
         tetrisBoard = TetrisBoard(scene: self)
         fallingTetrimino = IShapedTetrimino(tetrisBoard: tetrisBoard, rotationIndex: 0)
-        
-        let moveLeft = SKAction.run {
-            self.fallingTetrimino.move(.left)
-        }
-        let moveRight = SKAction.run {
-            self.fallingTetrimino.move(.right)
-        }
-        let wait = SKAction.wait(forDuration: 3.5)
-        let longWait = SKAction.wait(forDuration: 7)
-        self.run(SKAction.sequence([wait, moveLeft]))
-        self.run(SKAction.sequence([longWait, moveRight]))
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
