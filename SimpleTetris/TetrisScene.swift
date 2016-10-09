@@ -44,7 +44,12 @@ class TetrisScene: SKScene {
         downButton.unpressedTexture = SKTexture(imageNamed: "downButton")
         downButton.onClick = { [weak self] in self?.fallingTetrimino.moveDown() }
         
-        buttonGrid.setContent([leftButton, rightButton, rotateButton, downButton, NSNull(), NSNull()])
+        let forcedDownButton = ButtonNode(imageNamed: "forcedDownButton")
+        forcedDownButton.pressedTexture = SKTexture(imageNamed: "forcedDownButton_p")
+        forcedDownButton.unpressedTexture = SKTexture(imageNamed: "forcedDownButton")
+        forcedDownButton.onClick = { [weak self] in self?.fallingTetrimino.forcedMoveDown() }
+        
+        buttonGrid.setContent([leftButton, rightButton, rotateButton, downButton, forcedDownButton, NSNull()])
         background.addChild(buttonGrid)
         background.hlLayoutChildren()
         
