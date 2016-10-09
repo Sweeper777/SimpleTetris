@@ -58,6 +58,19 @@ class Tetrimino {
         }
     }
     
+    func forcedMoveDown() {
+        while !landed() {
+            for block in blocks {
+                block.moveDown()
+            }
+            updatePosition()
+        }
+        
+        tetrisBoard.syncModel()
+        tetrisBoard.scene!.removeAllActions()
+        onLanded?()
+    }
+    
     func move(_ direction: Direction) {
         let finalPositions = blocks.map { ($0.x + direction.rawValue, $0.y) }
         for (index, position) in finalPositions.enumerated() {
