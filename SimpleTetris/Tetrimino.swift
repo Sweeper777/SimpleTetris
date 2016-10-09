@@ -40,7 +40,9 @@ class Tetrimino {
     
     func changeSpeed(time: TimeInterval) {
         tetrisBoard.scene!.removeAllActions()
-        
+        let wait = SKAction.wait(forDuration: tetrisBoard.tetriminoSpeed)
+        let moveDown = SKAction.run {[weak self] in self?.moveDown() }
+        self.tetrisBoard.scene!.run(SKAction.repeatForever(SKAction.sequence([wait, moveDown])))
     }
     
     func moveDown() {
