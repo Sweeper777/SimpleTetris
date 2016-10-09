@@ -32,7 +32,7 @@ class Tetrimino {
         if !(x >= 0 && y >= 0 && x <= 9 && y <= 19) {
             return false
         }
-        if (tetrisBlockMatrix[x][y] == nil) {
+        if (tetrisBlockMatrix[x][y] == nil || blocks.contains { $0.x == x && $0.y == y }) {
             return true
         }
         return false
