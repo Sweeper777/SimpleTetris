@@ -20,7 +20,7 @@ class TetrisScene: SKScene {
         tetrisGrid.squareColor = UIColor.black
         background.addChild(tetrisGrid)
         
-        let buttonGrid = HLGridNode(gridWidth: 6, squareCount: 6, anchorPoint: CGPoint(x: 0.5, y: 0.5), layoutMode: .fill, squareSize: CGSize(width: 100, height: 100), backgroundBorderSize: 0, squareSeparatorSize: 1)!
+        let buttonGrid = HLGridNode(gridWidth: 6, squareCount: 6, anchorPoint: CGPoint(x: 0.5, y: 0.5), layoutMode: .fill, squareSize: CGSize(width: 100, height: 100), backgroundBorderSize: 0, squareSeparatorSize: 10)!
         buttonGrid.backgroundColor = UIColor.clear
         buttonGrid.squareColor = UIColor.clear
         
