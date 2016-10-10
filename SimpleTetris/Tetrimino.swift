@@ -77,6 +77,8 @@ class Tetrimino {
             if !isPositionValid(x: position.0, y: position.1) {
                 return
             }
+        }
+        for (index, position) in finalPositions.enumerated() {
             blocks[index].node.removeFromParent()
             blocks[index].x = position.0
         }
