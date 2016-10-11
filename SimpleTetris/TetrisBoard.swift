@@ -27,4 +27,27 @@ public class TetrisBoard {
 
         scene!.tetrisGrid.setContent(flatten(tetrisBlocks).map { $0?.node ?? NSNull() })
     }
+    
+    func addTetrimino() {
+        let tetrimino: Tetrimino
+        let randomNumber = Int(arc4random_uniform(140))
+        if randomNumber < 20 {
+            tetrimino = OShapedTetrimino(tetrisBoard: self)
+        } else if randomNumber < 40 {
+            tetrimino = IShapedTetrimino(tetrisBoard: self, rotationIndex: Int(arc4random_uniform(2)))
+        } else if randomNumber < 60 {
+            tetrimino = ZShapedTetrimino(tetrisBoard: self, rotationIndex: Int(arc4random_uniform(2)))
+        } else if randomNumber < 80 {
+            tetrimino = SShapedTetrimino(tetrisBoard: self, rotationIndex: Int(arc4random_uniform(2)))
+        } else if randomNumber < 100 {
+            tetrimino = TShapedTetrimino(tetrisBoard: self, rotationIndex: Int(arc4random_uniform(4)))
+        } else if randomNumber < 120 {
+            tetrimino = JShapedTetrimino(tetrisBoard: self, rotationIndex: Int(arc4random_uniform(4)))
+        } else {
+            tetrimino = LShapedTetrimino(tetrisBoard: self, rotationIndex: Int(arc4random_uniform(4)))
+        }
+        
+        tetrimino.onLanded = addTetrimino
+        scene?.fallingTetrimino = tetrimino
+    }
 }
