@@ -49,9 +49,8 @@ class TetrisUtility {
         
         if !finalPositionsValid.contains(false) {
             for i in 0..<4 {
-                tetrimino.blocks[i].x = absoluteCoordinates[i].0
-                tetrimino.blocks[i].y = absoluteCoordinates[i].1
                 tetrimino.blocks[i].node.removeFromParent()
+                tetrimino.blocks[i].setXY(absoluteCoordinates[i].0, absoluteCoordinates[i].1)
             }
             tetrimino.updatePosition()
             return true
@@ -93,9 +92,8 @@ class TetrisUtility {
         
         if !finalPositionsValid.contains(false) {
             for i in 0..<4 {
-                tetrimino.blocks[i].x = absoluteCoordinates[i].0
-                tetrimino.blocks[i].y = absoluteCoordinates[i].1
                 tetrimino.blocks[i].node.removeFromParent()
+                tetrimino.blocks[i].setXY(absoluteCoordinates[i].0, absoluteCoordinates[i].1)
             }
             tetrimino.updatePosition()
             return true

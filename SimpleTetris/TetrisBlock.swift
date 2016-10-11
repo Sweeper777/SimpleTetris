@@ -10,24 +10,22 @@ public class TetrisBlock {
     
     weak var tetrisBoard: TetrisBoard?
     
-    var x: Int {
-        didSet {
-            self.tetrisBoard!.tetrisBlocks[oldValue][y] = nil
-        }
-    }
+    var x: Int
     
-    var y: Int {
-        didSet {
-            self.tetrisBoard!.tetrisBlocks[x][oldValue] = nil
-        }
-    }
+    var y: Int
     
     func moveDown() {
-        y += 1
+        setXY(x, y + 1)
     }
     
     func updatePosition() {
         self.tetrisBoard!.tetrisBlocks[x][y] = self
+    }
+    
+    func setXY(_ x: Int, _ y: Int) {
+        self.tetrisBoard!.tetrisBlocks[self.x][self.y] = nil
+        self.x = x
+        self.y = y
     }
     
     init(x: Int, y: Int, texture: SKTexture, tetrisBoard: TetrisBoard) {

@@ -32,7 +32,7 @@ class Tetrimino {
         if !(x >= 0 && y >= 0 && x <= 9 && y <= 19) {
             return false
         }
-        if (tetrisBlockMatrix[x][y] == nil || blocks.contains { $0.x == x && $0.y == y }) {
+        if tetrisBlockMatrix[x][y] == nil || blocks.contains { $0.x == x && $0.y == y } {
             return true
         }
         return false
@@ -73,14 +73,14 @@ class Tetrimino {
     
     func move(_ direction: Direction) {
         let finalPositions = blocks.map { ($0.x + direction.rawValue, $0.y) }
-        for (index, position) in finalPositions.enumerated() {
+        for (_, position) in finalPositions.enumerated() {
             if !isPositionValid(x: position.0, y: position.1) {
                 return
             }
         }
         for (index, position) in finalPositions.enumerated() {
             blocks[index].node.removeFromParent()
-            blocks[index].x = position.0
+            blocks[index].setXY(position.0, blocks[index].y)
         }
         updatePosition()
         tetrisBoard.syncModel()
