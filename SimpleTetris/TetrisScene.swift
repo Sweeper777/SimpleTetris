@@ -54,7 +54,7 @@ class TetrisScene: SKScene {
         background.hlLayoutChildren()
         
         tetrisBoard = TetrisBoard(scene: self)
-        fallingTetrimino = IShapedTetrimino(tetrisBoard: tetrisBoard, rotationIndex: 0)
+        tetrisBoard.addTetrimino()
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {

@@ -9,13 +9,29 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "SimpleTetris/ButtonNode.swift"
-            timestampString = "497607379.854977"
+            filePath = "SimpleTetris/TetrisUtility.swift"
+            timestampString = "497809417.520015"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "9"
-            endingLineNumber = "9"
-            landmarkName = "onTouch()"
+            startingLineNumber = "62"
+            endingLineNumber = "62"
+            landmarkName = "tryRotate(_:anticlockwiseAbout:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SimpleTetris/TetrisUtility.swift"
+            timestampString = "497809417.520015"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "55"
+            endingLineNumber = "55"
+            landmarkName = "tryRotate(_:clockwiseAbout:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
