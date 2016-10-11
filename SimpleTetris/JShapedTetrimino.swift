@@ -12,7 +12,7 @@ class JShapedTetrimino : Tetrimino, Rotatable {
     }
     
     init(tetrisBoard: TetrisBoard, rotationIndex: Int) {
-        self.rotationIndex = rotationIndex
+        self.rotationIndex = 0
         super.init(tetrisBoard: tetrisBoard)
         let texture = SKTexture(imageNamed: "jtetrimino")
         blocks = [
