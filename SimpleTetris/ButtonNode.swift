@@ -12,7 +12,7 @@ class ButtonNode: SKSpriteNode {
             self?.onClick?()
         }
         
-        let sequence = SKAction.sequence([action, callBack])
+        let sequence = SKAction.sequence([callBack, action])
         self.run(sequence)
     }
 }
