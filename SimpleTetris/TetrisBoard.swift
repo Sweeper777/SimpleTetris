@@ -52,7 +52,42 @@ public class TetrisBoard {
             return
         }
         
-        tetrimino.onLanded = addTetrimino
+        tetrimino.onLanded = { [weak self] in self?.removeRows(); self?.addTetrimino() }
         scene?.fallingTetrimino = tetrimino
+    }
+    
+    func removeRows() {
+        var yCoordsToRemove = [Int]()
+        for y in 0..<20 {
+            var shouldRemoveThisRow = true
+            for x in 0..<10 {
+                if tetrisBlocks[x][y] == nil {
+                    shouldRemoveThisRow = false
+                }
+            }
+            if shouldRemoveThisRow {
+                yCoordsToRemove.append(y)
+            }
+        }
+        
+        for y in yCoordsToRemove {
+            for x in 0..<10 {
+                tetrisBlocks[x][y]!.node.removeFromParent()
+                tetrisBlocks[x][y] = nil
+            }
+            
+            for temp in 0..<20 {
+                let y2 = 19 - temp
+                for x2 in 0..<10 {
+                    if y2 < y {
+                        if let block = tetrisBlocks[x2][y2] {
+                            block.moveDown()
+                            block.updatePosition()
+                            print("(\(x2), \(y2))")
+                        }
+                    }
+                }
+            }
+        }
     }
 }
