@@ -92,7 +92,7 @@ class Tetrimino {
         }
     }
     
-    init(tetrisBoard: TetrisBoard) {
+    init(tetrisBoard: TetrisBoard) throws {
         self.tetrisBoard = tetrisBoard
         self.blocks = []
         let wait = SKAction.wait(forDuration: tetrisBoard.tetriminoSpeed)

@@ -9,10 +9,17 @@ class ZShapedTetrimino : Tetrimino, Rotatable {
         }
     }
     
-    init(tetrisBoard: TetrisBoard, rotationIndex: Int) {
+    init(tetrisBoard: TetrisBoard, rotationIndex: Int) throws {
         self.rotationIndex = 0
-        super.init(tetrisBoard: tetrisBoard)
+        try super.init(tetrisBoard: tetrisBoard)
         let texture = SKTexture(imageNamed: "ztetrimino")
+        var shouldThrowError = false
+        if tetrisBoard.tetrisBlocks[3][0] != nil ||
+            tetrisBoard.tetrisBlocks[4][0] != nil ||
+            tetrisBoard.tetrisBlocks[4][1] != nil ||
+            tetrisBoard.tetrisBlocks[5][1] != nil {
+            shouldThrowError = true
+        }
         blocks = [
             TetrisBlock(x: 3, y: 0, texture: texture, tetrisBoard: tetrisBoard),
             TetrisBlock(x: 4, y: 0, texture: texture, tetrisBoard: tetrisBoard),
@@ -25,6 +32,10 @@ class ZShapedTetrimino : Tetrimino, Rotatable {
         }
         
         tetrisBoard.syncModel()
+        
+        if shouldThrowError {
+            throw TetrisBlockOverflow()
+        }
     }
     
     func rotate() {

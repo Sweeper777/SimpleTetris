@@ -11,10 +11,17 @@ class JShapedTetrimino : Tetrimino, Rotatable {
         }
     }
     
-    init(tetrisBoard: TetrisBoard, rotationIndex: Int) {
+    init(tetrisBoard: TetrisBoard, rotationIndex: Int) throws {
         self.rotationIndex = 0
-        super.init(tetrisBoard: tetrisBoard)
+        try super.init(tetrisBoard: tetrisBoard)
         let texture = SKTexture(imageNamed: "jtetrimino")
+        var shouldThrowError = false
+        if tetrisBoard.tetrisBlocks[5][0] != nil ||
+            tetrisBoard.tetrisBlocks[5][1] != nil ||
+            tetrisBoard.tetrisBlocks[5][2] != nil ||
+            tetrisBoard.tetrisBlocks[4][2] != nil {
+            shouldThrowError = true
+        }
         blocks = [
             TetrisBlock(x: 5, y: 0, texture: texture, tetrisBoard: tetrisBoard),
             TetrisBlock(x: 5, y: 1, texture: texture, tetrisBoard: tetrisBoard),
@@ -27,6 +34,10 @@ class JShapedTetrimino : Tetrimino, Rotatable {
         }
         
         tetrisBoard.syncModel()
+        
+        if shouldThrowError {
+            throw TetrisBlockOverflow()
+        }
     }
     
     func rotate() {
