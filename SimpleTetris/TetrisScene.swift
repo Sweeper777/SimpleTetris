@@ -6,6 +6,7 @@ class TetrisScene: SKScene {
     var tetrisGrid: HLGridNode!
     var tetrisBoard: TetrisBoard!
     var fallingTetrimino: Tetrimino!
+    var isGameOver = false
     
     override func didMove(to view: SKView) {
         background = self.childNode(withName: "bg") as! SKSpriteNode
@@ -42,12 +43,12 @@ class TetrisScene: SKScene {
         let downButton = ButtonNode(imageNamed: "downButton")
         downButton.pressedTexture = SKTexture(imageNamed: "downButton_p")
         downButton.unpressedTexture = SKTexture(imageNamed: "downButton")
-        downButton.onClick = { [weak self] in self?.fallingTetrimino.moveDown() }
+        downButton.onClick = { [weak self] in self?.fallingTetrimino?.moveDown() }
         
         let forcedDownButton = ButtonNode(imageNamed: "forcedDownButton")
         forcedDownButton.pressedTexture = SKTexture(imageNamed: "forcedDownButton_p")
         forcedDownButton.unpressedTexture = SKTexture(imageNamed: "forcedDownButton")
-        forcedDownButton.onClick = { [weak self] in self?.fallingTetrimino.forcedMoveDown() }
+        forcedDownButton.onClick = { [weak self] in self?.fallingTetrimino?.forcedMoveDown() }
         
         buttonGrid.setContent([leftButton, rightButton, rotateButton, downButton, forcedDownButton, NSNull()])
         background.addChild(buttonGrid)
@@ -58,11 +59,37 @@ class TetrisScene: SKScene {
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for touch in touches {
-            let location = touch.location(in: self)
-            if let button = self.nodes(at: location).first as? ButtonNode {
-                button.onTouch()
+        if isGameOver {
+            let scene = GameScene(fileNamed: "GameScene")!
+            let transition = SKTransition.push(with: .right, duration: 0.5)
+            scene.scaleMode = .aspectFit
+            self.view!.presentScene(scene, transition: transition)
+        } else {
+            for touch in touches {
+                let location = touch.location(in: self)
+                if let button = self.nodes(at: location).first as? ButtonNode {
+                    button.onTouch()
+                }
             }
         }
+    }
+    
+    func gameOver() {
+        self.removeAllActions()
+        self.fallingTetrimino = nil
+        isGameOver = true
+        let gameOverBanner = SKSpriteNode(imageNamed: "gameOver")
+        gameOverBanner.alpha = 0
+        gameOverBanner.zPosition = 2000
+        gameOverBanner.size = CGSize(width: 700, height: 336.5)
+        addChild(gameOverBanner)
+        let translucentNode = SKSpriteNode(color: UIColor.black.withAlphaComponent(0.8), size: self.size)
+        translucentNode.alpha = 0
+        translucentNode.zPosition = 1999
+        addChild(translucentNode)
+        let fadeIn = SKAction.fadeIn(withDuration: 0.5)
+        gameOverBanner.run(fadeIn)
+        translucentNode.run(fadeIn)
+        
     }
 }
