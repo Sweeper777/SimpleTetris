@@ -7,6 +7,7 @@ class TetrisScene: SKScene {
     var tetrisBoard: TetrisBoard!
     var fallingTetrimino: Tetrimino!
     var isGameOver = false
+    var scoreLabel: SKLabelNode!
     
     override func didMove(to view: SKView) {
         background = self.childNode(withName: "bg") as! SKSpriteNode
@@ -15,6 +16,20 @@ class TetrisScene: SKScene {
         let tableLayout = HLTableLayoutManager(columnCount: 1, columnWidths: [(0.0)], columnAnchorPoints: [anchorPoint], rowHeights: [(0.0)])!
         tableLayout.rowSeparator = 15
         background.hlSetLayoutManager(tableLayout)
+        
+        let scoreboardNode = SKSpriteNode(color: UIColor.yellow.withAlphaComponent(0.77), size: CGSize(width: 700, height: 160))
+        scoreboardNode.zPosition = 1001
+        
+        scoreLabel = SKLabelNode(text: "SCORE:           0")
+        scoreLabel.fontSize = 61
+        scoreLabel.fontName = "Courier-Bold"
+        scoreLabel.horizontalAlignmentMode = .center
+        scoreLabel.fontColor = UIColor.black
+        scoreLabel.position = CGPoint(x: 10, y: 5)
+        scoreboardNode.addChild(scoreLabel)
+        
+        background.addChild(scoreboardNode)
+        
         tetrisGrid = HLGridNode(gridWidth: 10, squareCount: 200, anchorPoint: CGPoint(x: 0.5, y: 0.5), layoutMode: .fill, squareSize: CGSize(width: 50, height: 50), backgroundBorderSize: 0, squareSeparatorSize: 0)
         tetrisGrid.zPosition = 1000
         tetrisGrid.backgroundColor = UIColor.black
