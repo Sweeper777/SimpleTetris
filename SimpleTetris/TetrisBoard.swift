@@ -83,7 +83,6 @@ public class TetrisBoard {
                         if let block = tetrisBlocks[x2][y2] {
                             block.moveDown()
                             block.updatePosition()
-                            print("(\(x2), \(y2))")
                         }
                     }
                 }
