@@ -8,6 +8,7 @@ class TetrisScene: SKScene {
     var fallingTetrimino: Tetrimino!
     var isGameOver = false
     var scoreLabel: SKLabelNode!
+    var bestScoreLabel: SKLabelNode!
     
     override func didMove(to view: SKView) {
         background = self.childNode(withName: "bg") as! SKSpriteNode
@@ -27,6 +28,14 @@ class TetrisScene: SKScene {
         scoreLabel.fontColor = UIColor.black
         scoreLabel.position = CGPoint(x: 10, y: 5)
         scoreboardNode.addChild(scoreLabel)
+        
+        bestScoreLabel = SKLabelNode(text: "BEST:            0")
+        bestScoreLabel.fontSize = 61
+        bestScoreLabel.horizontalAlignmentMode = .center
+        bestScoreLabel.fontName = "Courier-Bold"
+        bestScoreLabel.fontColor = UIColor.black
+        bestScoreLabel.position = CGPoint(x: 10, y: -50)
+        scoreboardNode.addChild(bestScoreLabel)
         
         background.addChild(scoreboardNode)
         
