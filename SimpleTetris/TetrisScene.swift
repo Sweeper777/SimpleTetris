@@ -101,7 +101,6 @@ class TetrisScene: SKScene {
     func gameOver() {
         self.removeAllActions()
         self.fallingTetrimino = nil
-        isGameOver = true
         let gameOverBanner = SKSpriteNode(imageNamed: "gameOver")
         gameOverBanner.alpha = 0
         gameOverBanner.zPosition = 2000
@@ -112,7 +111,9 @@ class TetrisScene: SKScene {
         translucentNode.zPosition = 1999
         addChild(translucentNode)
         let fadeIn = SKAction.fadeIn(withDuration: 0.5)
-        gameOverBanner.run(fadeIn)
+        let gameOverAction = SKAction.run { [weak self] in self?.isGameOver = true }
+        let wait = SKAction.wait(forDuration: 0.2)
+        gameOverBanner.run(SKAction.sequence([fadeIn, wait, gameOverAction]))
         translucentNode.run(fadeIn)
         
     }
