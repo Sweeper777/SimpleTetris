@@ -7,6 +7,11 @@ public class TetrisBoard {
     weak var scene: TetrisScene?
     
     var tetriminoSpeed: TimeInterval = 1
+    var score: Int = 0 {
+        didSet {
+            scene?.scoreLabel.text = "SCORE:\(String(score).padLeft(length: 12))"
+        }
+    }
     
     init(scene: TetrisScene) {
         self.scene = scene
@@ -88,5 +93,22 @@ public class TetrisBoard {
                 }
             }
         }
+        
+        score += 20 * yCoordsToRemove.count * yCoordsToRemove.count
+
+extension String {
+    func padLeft(length: Int) -> String {
+        if self.characters.count >= length {
+            return self
+        }
+        var result = self
+        while result.characters.count < length {
+            result = " " + result
+        }
+        return result
+    }
+    
+    mutating func paddedLeft(length: Int) {
+        self = self.padLeft(length: length)
     }
 }
