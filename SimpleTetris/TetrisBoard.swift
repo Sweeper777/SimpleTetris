@@ -95,6 +95,12 @@ public class TetrisBoard {
         }
         
         score += 20 * yCoordsToRemove.count * yCoordsToRemove.count
+        
+        if yCoordsToRemove.count > 0 {
+            tetriminoSpeed *= 0.95
+        }
+    }
+}
 
 extension String {
     func padLeft(length: Int) -> String {
