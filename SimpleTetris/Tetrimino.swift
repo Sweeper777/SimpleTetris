@@ -39,7 +39,7 @@ class Tetrimino {
     }
     
     func changeSpeed(time: TimeInterval) {
-        tetrisBoard.scene!.removeAllActions()
+        tetrisBoard.scene!.background.removeAllActions()
         let wait = SKAction.wait(forDuration: tetrisBoard.tetriminoSpeed)
         let moveDown = SKAction.run {[weak self] in self?.moveDown() }
         self.tetrisBoard.scene!.run(SKAction.repeatForever(SKAction.sequence([wait, moveDown])))
@@ -53,7 +53,7 @@ class Tetrimino {
             updatePosition()
             tetrisBoard.syncModel()
         } else {
-            tetrisBoard.scene!.removeAllActions()
+            tetrisBoard.scene!.background.removeAllActions()
             onLanded?()
         }
     }
@@ -67,7 +67,7 @@ class Tetrimino {
         }
         
         tetrisBoard.syncModel()
-        tetrisBoard.scene!.removeAllActions()
+        tetrisBoard.scene!.background.removeAllActions()
         onLanded?()
     }
     
@@ -97,7 +97,7 @@ class Tetrimino {
         self.blocks = []
         let wait = SKAction.wait(forDuration: tetrisBoard.tetriminoSpeed)
         let moveDown = SKAction.run {[weak self] in self?.moveDown() }
-        self.tetrisBoard.scene!.run(SKAction.repeatForever(SKAction.sequence([wait, moveDown])))
+        self.tetrisBoard.scene!.background.run(SKAction.repeatForever(SKAction.sequence([wait, moveDown])))
     }
 }
 
