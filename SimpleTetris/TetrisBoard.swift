@@ -13,6 +13,17 @@ public class TetrisBoard {
         }
     }
     
+    var bestScore: Int {
+        get {
+            return UserDefaults.standard.integer(forKey: "bestScore")
+        }
+        
+        set {
+            UserDefaults.standard.set(newValue, forKey: "bestScore")
+            scene?.bestScoreLabel.text = "BEST:\(String(newValue).padLeft(length: 13))"
+        }
+    }
+    
     init(scene: TetrisScene) {
         self.scene = scene
         let repeating: [TetrisBlock?] = [TetrisBlock?](repeating: nil, count: 20)

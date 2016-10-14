@@ -77,7 +77,7 @@ class TetrisScene: SKScene {
         scoreLabel.position = CGPoint(x: 10, y: 5)
         scoreboardNode.addChild(scoreLabel)
         
-        bestScoreLabel = SKLabelNode(text: "BEST:            0")
+        bestScoreLabel = SKLabelNode(text: "")
         bestScoreLabel.fontSize = 61
         bestScoreLabel.horizontalAlignmentMode = .center
         bestScoreLabel.fontName = "Courier-Bold"
@@ -160,6 +160,31 @@ class TetrisScene: SKScene {
         gameOverBanner.alpha = 0
         gameOverBanner.zPosition = 2000
         gameOverBanner.size = CGSize(width: 700, height: 336.5)
+        gameOverBanner.anchorPoint = CGPoint(x: 0.5, y: 0.5)
+        
+        let finalScoreLabel = SKLabelNode(text: "SCORE:\(tetrisBoard.score)")
+        finalScoreLabel.fontSize = 61
+        finalScoreLabel.fontName = "Courier-Bold"
+        finalScoreLabel.horizontalAlignmentMode = .center
+        finalScoreLabel.fontColor = UIColor.black
+        finalScoreLabel.position = CGPoint(x: 0, y: -50)
+        finalScoreLabel.zPosition = 2001
+        
+        if tetrisBoard.score > tetrisBoard.bestScore {
+            tetrisBoard.bestScore = tetrisBoard.score
+            finalScoreLabel.position = CGPoint(x: 0, y: -70)
+            let bestText = SKLabelNode(text: "NEW BEST SCORE!!")
+            bestText.fontSize = 61
+            bestText.fontName = "Courier-Bold"
+            bestText.horizontalAlignmentMode = .center
+            bestText.fontColor = UIColor.black
+            bestText.position = CGPoint(x: 0, y: 0)
+            bestText.zPosition = 2001
+            gameOverBanner.addChild(bestText)
+        }
+        
+        gameOverBanner.addChild(finalScoreLabel)
+        
         addChild(gameOverBanner)
         let translucentNode = SKSpriteNode(color: UIColor.black.withAlphaComponent(0.8), size: self.size)
         translucentNode.alpha = 0
