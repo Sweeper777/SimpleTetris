@@ -1,5 +1,6 @@
 import SpriteKit
 import HLSpriteKit
+import EZSwiftExtensions
 
 class TetrisScene: SKScene {
     var background: SKSpriteNode!
@@ -9,6 +10,53 @@ class TetrisScene: SKScene {
     var isGameOver = false
     var scoreLabel: SKLabelNode!
     var bestScoreLabel: SKLabelNode!
+    
+    lazy var pauseOverlay: SKSpriteNode = {
+        let overlay = SKSpriteNode(imageNamed: "bg")
+        overlay.anchorPoint = CGPoint(x: 0.5, y: 0.5)
+        overlay.zPosition = 2000
+        
+        let pausedLabel = SKSpriteNode(imageNamed: "pauseLabel")
+        pausedLabel.position = CGPoint(x: 0, y: 400)
+        pausedLabel.zPosition = 2001
+        
+        overlay.addChild(pausedLabel)
+        
+        let resumeButton = ButtonNode(imageNamed: "resumeButton")
+        resumeButton.pressedTexture = SKTexture(imageNamed: "resumeButton_p")
+        resumeButton.unpressedTexture = SKTexture(imageNamed: "resumeButton")
+        resumeButton.callBackFirst = false
+        resumeButton.zPosition = 2001
+        resumeButton.onClick = {
+            let fadeOut = SKAction.fadeOut(withDuration: 0.5)
+            let unpauseAction = SKAction.run {
+                [weak self] in
+                overlay.removeFromParent()
+                if let myself = self {
+                    myself.background.isPaused = false
+                }
+            }
+            overlay.run(SKAction.sequence([fadeOut, unpauseAction]))
+        }
+        overlay.addChild(resumeButton)
+        
+        let mainMenuButton = ButtonNode(imageNamed: "mainMenuButton")
+        mainMenuButton.callBackFirst = false
+        mainMenuButton.pressedTexture = SKTexture(imageNamed: "mainMenuButton_p")
+        mainMenuButton.unpressedTexture = SKTexture(imageNamed: "mainMenuButton")
+        mainMenuButton.position = CGPoint(x: 0, y: -100)
+        mainMenuButton.zPosition = 2001
+        mainMenuButton.onClick = {
+            [weak self] in
+            let scene = GameScene(fileNamed: "GameScene")!
+            let transition = SKTransition.push(with: .right, duration: 0.5)
+            scene.scaleMode = .aspectFit
+            self?.view!.presentScene(scene, transition: transition)
+        }
+        overlay.addChild(mainMenuButton)
+        
+        return overlay
+    }()
     
     override func didMove(to view: SKView) {
         background = self.childNode(withName: "bg") as! SKSpriteNode
@@ -74,11 +122,18 @@ class TetrisScene: SKScene {
         forcedDownButton.unpressedTexture = SKTexture(imageNamed: "forcedDownButton")
         forcedDownButton.onClick = { [weak self] in self?.fallingTetrimino?.forcedMoveDown() }
         
-        buttonGrid.setContent([leftButton, rightButton, rotateButton, downButton, forcedDownButton, NSNull()])
+        let pauseButton = ButtonNode(imageNamed: "pauseButton")
+        pauseButton.pressedTexture = SKTexture(imageNamed: "pauseButton_p")
+        pauseButton.unpressedTexture = SKTexture(imageNamed: "pauseButton")
+        pauseButton.callBackFirst = false
+        pauseButton.onClick = { [weak self] in self?.pause() }
+        
+        buttonGrid.setContent([leftButton, rightButton, rotateButton, downButton, forcedDownButton, pauseButton])
         background.addChild(buttonGrid)
         background.hlLayoutChildren()
         
         tetrisBoard = TetrisBoard(scene: self)
+        bestScoreLabel.text = "BEST:\(String(tetrisBoard.bestScore).padLeft(length: 13))"
         tetrisBoard.addTetrimino()
     }
     
@@ -99,7 +154,7 @@ class TetrisScene: SKScene {
     }
     
     func gameOver() {
-        self.removeAllActions()
+        self.background.removeAllActions()
         self.fallingTetrimino = nil
         let gameOverBanner = SKSpriteNode(imageNamed: "gameOver")
         gameOverBanner.alpha = 0
@@ -116,5 +171,13 @@ class TetrisScene: SKScene {
         gameOverBanner.run(SKAction.sequence([fadeIn, wait, gameOverAction]))
         translucentNode.run(fadeIn)
         
+    }
+    
+    func pause() {
+        self.background.isPaused = true
+        pauseOverlay.alpha = 0
+        self.addChild(pauseOverlay)
+        let fadeIn = SKAction.fadeIn(withDuration: 0.5)
+        pauseOverlay.run(fadeIn)
     }
 }
