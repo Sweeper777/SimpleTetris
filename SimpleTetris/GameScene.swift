@@ -19,6 +19,11 @@ class GameScene: SKScene {
         
         startButton = background.childNode(withName: "startButton") as! SKSpriteNode
         startButton.zPosition = 1000
+        
+        let bestScoreLabel = background.childNode(withName: "bestScoreBg")!.childNode(withName: "bestScoreLabel") as! SKLabelNode
+        bestScoreLabel.text = String(UserDefaults.standard.integer(forKey: "bestScore"))
+        bestScoreLabel.zPosition = 1002
+        bestScoreLabel.parent?.zPosition = 1001
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
