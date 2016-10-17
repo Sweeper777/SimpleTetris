@@ -9,11 +9,11 @@ class GameScene: SKScene {
         let background = self.childNode(withName: "bg")!
         background.zPosition = 998
         let banner = background.childNode(withName: "banner") as! SKSpriteNode
-        let moveLeftLittle = SKAction.moveBy(x: -3.5, y: 0, duration: 0.35)
+        let moveLeftLittle = SKAction.moveBy(x: -1.5, y: 0, duration: 0.35)
         banner.zPosition = 999
         banner.run(moveLeftLittle)
-        let moveLeft = SKAction.moveBy(x: -7, y: 0, duration: 0.7)
-        let moveRight = SKAction.moveBy(x: 7, y: 0, duration: 0.7)
+        let moveLeft = SKAction.moveBy(x: -3, y: 0, duration: 0.7)
+        let moveRight = SKAction.moveBy(x: 3, y: 0, duration: 0.7)
         let leftAndRight = SKAction.repeatForever(SKAction.sequence([moveRight, moveLeft]))
         banner.run(leftAndRight)
         
