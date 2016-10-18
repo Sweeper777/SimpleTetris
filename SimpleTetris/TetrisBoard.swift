@@ -106,16 +106,16 @@ public class TetrisBoard {
         }
         
         let scoreAdded = 20 * yCoordsToRemove.count * yCoordsToRemove.count
-        if let texture = UIImage(named: "plus\(scoreAdded)") {
-            let addScoreIndicator = SKSpriteNode(texture: SKTexture(image: texture))
-            addScoreIndicator.zPosition = 1001
-            scene?.background.addChild(addScoreIndicator)
-            let moveUp = SKAction.moveBy(x: 0, y: 300, duration: 0.7)
-            let fadeOut = SKAction.fadeOut(withDuration: 0.7)
-            let group = SKAction.group([moveUp, fadeOut])
-            let removeFromParent = SKAction.removeFromParent()
-            addScoreIndicator.run(SKAction.sequence([group, removeFromParent]))
-        }
+//        if let texture = UIImage(named: "plus\(scoreAdded)") {
+//            let addScoreIndicator = SKSpriteNode(texture: SKTexture(image: texture))
+//            addScoreIndicator.zPosition = 1001
+//            scene?.background.addChild(addScoreIndicator)
+//            let moveUp = SKAction.moveBy(x: 0, y: 300, duration: 0.7)
+//            let fadeOut = SKAction.fadeOut(withDuration: 0.7)
+//            let group = SKAction.group([moveUp, fadeOut])
+//            let removeFromParent = SKAction.removeFromParent()
+//            addScoreIndicator.run(SKAction.sequence([group, removeFromParent]))
+//        }
         score += scoreAdded
         
         if yCoordsToRemove.count > 0 {
