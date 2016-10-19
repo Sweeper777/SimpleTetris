@@ -27,7 +27,7 @@ class SShapedTetrimino : Tetrimino, Rotatable {
             TetrisBlock(x: 5, y: 0, texture: texture, tetrisBoard: tetrisBoard)
         ]
         
-        if rotationIndex == 1 {
+        if rotationIndex == 1 && !shouldThrowError {
             rotate()
         }
         

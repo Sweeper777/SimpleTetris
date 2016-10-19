@@ -29,8 +29,10 @@ class LShapedTetrimino : Tetrimino, Rotatable {
             TetrisBlock(x: 5, y: 2, texture: texture, tetrisBoard: tetrisBoard)
         ]
         
-        for _ in 0..<rotationIndex {
-            rotate()
+        if !shouldThrowError {
+            for _ in 0..<rotationIndex {
+                rotate()
+            }
         }
         
         tetrisBoard.syncModel()
