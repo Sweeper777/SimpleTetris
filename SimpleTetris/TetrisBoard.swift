@@ -46,19 +46,19 @@ public class TetrisBoard {
     
     func addTetrimino() {
         let tetrimino: Tetrimino!
-        let randomNumber = Int(arc4random_uniform(140))
+        let randomNumber = Int(arc4random_uniform(150))
         do {
             if randomNumber < 20 {
                 tetrimino = try OShapedTetrimino(tetrisBoard: self)
-            } else if randomNumber < 40 {
+            } else if randomNumber < 50 {
                 tetrimino = try IShapedTetrimino(tetrisBoard: self, rotationIndex: Int(arc4random_uniform(2)))
-            } else if randomNumber < 60 {
+            } else if randomNumber < 70 {
                 tetrimino = try ZShapedTetrimino(tetrisBoard: self, rotationIndex: Int(arc4random_uniform(2)))
-            } else if randomNumber < 80 {
+            } else if randomNumber < 90 {
                 tetrimino = try SShapedTetrimino(tetrisBoard: self, rotationIndex: Int(arc4random_uniform(2)))
-            } else if randomNumber < 100 {
+            } else if randomNumber < 110 {
                 tetrimino = try TShapedTetrimino(tetrisBoard: self, rotationIndex: Int(arc4random_uniform(4)))
-            } else if randomNumber < 120 {
+            } else if randomNumber < 130 {
                 tetrimino = try JShapedTetrimino(tetrisBoard: self, rotationIndex: Int(arc4random_uniform(4)))
             } else {
                 tetrimino = try LShapedTetrimino(tetrisBoard: self, rotationIndex: Int(arc4random_uniform(4)))
