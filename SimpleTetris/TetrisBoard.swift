@@ -118,7 +118,7 @@ public class TetrisBoard {
         }
         score += scoreAdded
         
-        if yCoordsToRemove.count > 0 {
+        if yCoordsToRemove.count > 0 && tetriminoSpeed > 0.2 {
             tetriminoSpeed *= 0.95
         }
     }
