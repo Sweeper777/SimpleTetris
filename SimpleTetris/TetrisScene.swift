@@ -10,6 +10,7 @@ class TetrisScene: SKScene {
     var isGameOver = false
     var scoreLabel: SKLabelNode!
     var bestScoreLabel: SKLabelNode!
+    var gestureRecognizers: [UIGestureRecognizer] = []
     
     lazy var pauseOverlay: SKSpriteNode = {
         let overlay = SKSpriteNode(imageNamed: "bg")
@@ -132,6 +133,29 @@ class TetrisScene: SKScene {
         background.addChild(buttonGrid)
         background.hlLayoutChildren()
         
+        let rotateRecog = UITapGestureRecognizer(target: self, action: #selector(rotateRecognized))
+        rotateRecog.numberOfTouchesRequired = 2
+        gestureRecognizers.append(rotateRecog)
+        for i in 1...10 {
+            let leftRecog = UISwipeGestureRecognizer(target: self, action: #selector(moveLeftRecognized))
+            leftRecog.numberOfTouchesRequired = i
+            leftRecog.direction = .left
+            gestureRecognizers.append(leftRecog)
+            let rightRecog = UISwipeGestureRecognizer(target: self, action: #selector(moveRightRecognized))
+            rightRecog.numberOfTouchesRequired = i
+            rightRecog.direction = .right
+            gestureRecognizers.append(rightRecog)
+        }
+        let downRecog = UISwipeGestureRecognizer(target: self, action: #selector(moveDownRecognized))
+        downRecog.direction = .down
+        downRecog.numberOfTouchesRequired = 1
+        gestureRecognizers.append(downRecog)
+        let forcedDownRecog = UISwipeGestureRecognizer(target: self, action: #selector(forcedDownRecognized))
+        forcedDownRecog.direction = .down
+        forcedDownRecog.numberOfTouchesRequired = 2
+        gestureRecognizers.append(forcedDownRecog)
+        gestureRecognizers.forEach { self.view?.addGestureRecognizer($0) }
+        
         tetrisBoard = TetrisBoard(scene: self)
         bestScoreLabel.text = "BEST:\(String(tetrisBoard.bestScore).padLeft(length: 13))"
         tetrisBoard.addTetrimino()
@@ -204,5 +228,25 @@ class TetrisScene: SKScene {
         self.addChild(pauseOverlay)
         let fadeIn = SKAction.fadeIn(withDuration: 0.5)
         pauseOverlay.run(fadeIn)
+    }
+    
+    func rotateRecognized() {
+        
+    }
+    
+    func moveLeftRecognized(sender: UISwipeGestureRecognizer) {
+        
+    }
+    
+    func moveRightRecognized(sender: UISwipeGestureRecognizer) {
+        
+    }
+    
+    func moveDownRecognized() {
+        
+    }
+    
+    func forcedDownRecognized() {
+        
     }
 }
