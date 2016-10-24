@@ -231,22 +231,28 @@ class TetrisScene: SKScene {
     }
     
     func rotateRecognized() {
-        
+        if let rotatable = self.fallingTetrimino as? Rotatable {
+            rotatable.rotate()
+        }
     }
     
     func moveLeftRecognized(sender: UISwipeGestureRecognizer) {
-        
+        for _ in 0..<sender.numberOfTouches {
+            self.fallingTetrimino.move(.left)
+        }
     }
     
     func moveRightRecognized(sender: UISwipeGestureRecognizer) {
-        
+        for _ in 0..<sender.numberOfTouches {
+            self.fallingTetrimino.move(.right)
+        }
     }
     
     func moveDownRecognized() {
-        
+        self.fallingTetrimino.moveDown()
     }
     
     func forcedDownRecognized() {
-        
+        self.fallingTetrimino.forcedMoveDown()
     }
 }
