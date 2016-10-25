@@ -270,22 +270,35 @@ enum {
 
 - (NSArray *)addsToGestureRecognizers
 {
+#if TARGET_OS_IPHONE
   return @[ [[UITapGestureRecognizer alloc] init] ];
+#else
+  return @[ [[NSClickGestureRecognizer alloc] init] ];
+#endif
 }
 
-- (BOOL)addToGesture:(UIGestureRecognizer *)gestureRecognizer firstTouch:(UITouch *)touch isInside:(BOOL *)isInside
+- (BOOL)addToGesture:(HLGestureRecognizer *)gestureRecognizer firstLocation:(CGPoint)sceneLocation isInside:(BOOL *)isInside
 {
   *isInside = YES;
+#if TARGET_OS_IPHONE
   if ([gestureRecognizer isKindOfClass:[UITapGestureRecognizer class]]) {
     // note: Require only one tap and one touch, same as our gesture recognizer returned
     // from addsToGestureRecognizers?  I think it's okay to be non-strict.
     [gestureRecognizer addTarget:self action:@selector(handleTap:)];
     return YES;
   }
+#else
+  if ([gestureRecognizer isKindOfClass:[NSClickGestureRecognizer class]]) {
+    [gestureRecognizer addTarget:self action:@selector(handleClick:)];
+    return YES;
+  }
+#endif
   return NO;
 }
 
-- (void)handleTap:(UIGestureRecognizer *)gestureRecognizer
+#if TARGET_OS_IPHONE
+
+- (void)handleTap:(HLGestureRecognizer *)gestureRecognizer
 {
   CGPoint viewLocation = [gestureRecognizer locationInView:self.scene.view];
   CGPoint sceneLocation = [self.scene convertPointFromView:viewLocation];
@@ -305,6 +318,96 @@ enum {
     [delegate ringNode:self didTapItem:itemIndex];
   }
 }
+
+#else
+
+- (void)handleClick:(HLGestureRecognizer *)gestureRecognizer
+{
+  CGPoint viewLocation = [gestureRecognizer locationInView:self.scene.view];
+  CGPoint sceneLocation = [self.scene convertPointFromView:viewLocation];
+  CGPoint location = [self convertPoint:sceneLocation fromNode:self.scene];
+
+  int itemIndex = [self itemAtPoint:location];
+  if (itemIndex < 0) {
+    return;
+  }
+
+  if (_itemClickedBlock) {
+    _itemClickedBlock(itemIndex);
+  }
+
+  id <HLRingNodeDelegate> delegate = _delegate;
+  if (delegate) {
+    [delegate ringNode:self didClickItem:itemIndex];
+  }
+}
+
+#endif
+
+#if TARGET_OS_IPHONE
+
+#pragma mark -
+#pragma mark UIResponder
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{
+  if ([touches count] > 1) {
+    return;
+  }
+
+  UITouch *touch = [touches anyObject];
+  if (touch.tapCount > 1) {
+    return;
+  }
+
+  CGPoint viewLocation = [touch locationInView:self.scene.view];
+  CGPoint sceneLocation = [self.scene convertPointFromView:viewLocation];
+  CGPoint location = [self convertPoint:sceneLocation fromNode:self.scene];
+
+  int itemIndex = [self itemAtPoint:location];
+  if (itemIndex < 0) {
+    return;
+  }
+
+  if (_itemTappedBlock) {
+    _itemTappedBlock(itemIndex);
+  }
+
+  id <HLRingNodeDelegate> delegate = _delegate;
+  if (delegate) {
+    [delegate ringNode:self didTapItem:itemIndex];
+  }
+}
+
+#else
+
+#pragma mark -
+#pragma mark NSResponder
+
+- (void)mouseUp:(NSEvent *)event
+{
+  if (event.clickCount > 1) {
+    return;
+  }
+
+  CGPoint location = [event locationInNode:self];
+
+  int itemIndex = [self itemAtPoint:location];
+  if (itemIndex < 0) {
+    return;
+  }
+
+  if (_itemClickedBlock) {
+    _itemClickedBlock(itemIndex);
+  }
+
+  id <HLRingNodeDelegate> delegate = _delegate;
+  if (delegate) {
+    [delegate ringNode:self didClickItem:itemIndex];
+  }
+}
+
+#endif
 
 #pragma mark -
 #pragma mark Private

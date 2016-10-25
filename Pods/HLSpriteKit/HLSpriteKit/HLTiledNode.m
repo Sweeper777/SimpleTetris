@@ -8,6 +8,8 @@
 
 #import "HLTiledNode.h"
 
+#import <TargetConditionals.h>
+
 @implementation HLTiledNode
 {
   CGSize _size;
@@ -44,7 +46,7 @@
   return [self initWithTexture:texture color:[SKColor whiteColor] size:size];
 }
 
-- (instancetype)initWithTexture:(SKTexture *)texture color:(UIColor *)color size:(CGSize)size
+- (instancetype)initWithTexture:(SKTexture *)texture color:(SKColor *)color size:(CGSize)size
 {
   self = [super init];
   if (self) {
@@ -59,8 +61,13 @@
 {
   self = [super initWithCoder:aDecoder];
   if (self) {
+#if TARGET_OS_IPHONE
     _size = [aDecoder decodeCGSizeForKey:@"size"];
     _anchorPoint = [aDecoder decodeCGPointForKey:@"anchorPoint"];
+#else
+    _size = [aDecoder decodeSizeForKey:@"size"];
+    _anchorPoint = [aDecoder decodePointForKey:@"anchorPoint"];
+#endif
   }
   return self;
 }
@@ -68,8 +75,13 @@
 - (void)encodeWithCoder:(NSCoder *)aCoder
 {
   [super encodeWithCoder:aCoder];
+#if TARGET_OS_IPHONE
   [aCoder encodeCGSize:_size forKey:@"size"];
   [aCoder encodeCGPoint:_anchorPoint forKey:@"anchorPoint"];
+#else
+  [aCoder encodeSize:_size forKey:@"size"];
+  [aCoder encodePoint:_anchorPoint forKey:@"anchorPoint"];
+#endif
 }
 
 - (instancetype)copyWithZone:(NSZone *)zone
@@ -162,6 +174,13 @@
 - (void)HL_createTileNodesWithTexture:(SKTexture *)texture color:(SKColor *)color
 {
   [self removeAllChildren];
+
+  if (texture.size.width == 0.0f || texture.size.height == 0.0f) {
+    // note: Add one child anyway: Need a placeholder to hold properties.
+    SKSpriteNode *tileNode = [[SKSpriteNode alloc] initWithTexture:texture color:color size:texture.size];
+    [self addChild:tileNode];
+    return;
+  }
 
   CGPoint origin = CGPointMake(_anchorPoint.x * -1.0f * _size.width,
                                _anchorPoint.y * -1.0f * _size.height);

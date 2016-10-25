@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		5A00DF411DA8D82600AD83A7 /* ButtonNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A00DF401DA8D82600AD83A7 /* ButtonNode.swift */; };
 		5A1B96371DAD16B700319A23 /* TetrisBlockOverflow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A1B96361DAD16B700319A23 /* TetrisBlockOverflow.swift */; };
+		5A1D0A891DBE091000518B6B /* HLSpriteKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A1D0A881DBE091000518B6B /* HLSpriteKit.framework */; };
 		5A2008511DAA6F7900441D09 /* JShapedTetrimino.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A2008501DAA6F7900441D09 /* JShapedTetrimino.swift */; };
 		5A2008531DAA737000441D09 /* LShapedTetrimino.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A2008521DAA737000441D09 /* LShapedTetrimino.swift */; };
 		5A2008551DAA9E8E00441D09 /* SShapedTetrimino.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A2008541DAA9E8E00441D09 /* SShapedTetrimino.swift */; };
@@ -25,7 +26,6 @@
 		5AFEC0F01D9FC3910054FAAA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5AFEC0EF1D9FC3910054FAAA /* Assets.xcassets */; };
 		5AFEC0F31D9FC3910054FAAA /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5AFEC0F11D9FC3910054FAAA /* LaunchScreen.storyboard */; };
 		5AFEC0FC1D9FC5340054FAAA /* EZSwiftExtensions.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5AFEC0FA1D9FC5340054FAAA /* EZSwiftExtensions.framework */; };
-		5AFEC0FD1D9FC5340054FAAA /* HLSpriteKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5AFEC0FB1D9FC5340054FAAA /* HLSpriteKit.framework */; };
 		5AFED87A1DA10BFD00B0FB39 /* TetrisScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 5AFED8791DA10BFD00B0FB39 /* TetrisScene.sks */; };
 		5AFED87C1DA10C4000B0FB39 /* TetrisScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AFED87B1DA10C4000B0FB39 /* TetrisScene.swift */; };
 		5AFF9B781DA579EE00374C6D /* Rotatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AFF9B771DA579EE00374C6D /* Rotatable.swift */; };
@@ -41,6 +41,7 @@
 		4F4144C4C4E932A1C4947224 /* Pods_SimpleTetris.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SimpleTetris.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5A00DF401DA8D82600AD83A7 /* ButtonNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ButtonNode.swift; sourceTree = "<group>"; };
 		5A1B96361DAD16B700319A23 /* TetrisBlockOverflow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TetrisBlockOverflow.swift; sourceTree = "<group>"; };
+		5A1D0A881DBE091000518B6B /* HLSpriteKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HLSpriteKit.framework; path = "../../Library/Developer/Xcode/DerivedData/SimpleTetris-egikindlrixorraeplzahzqokebm/Build/Products/Debug-iphonesimulator/HLSpriteKit/HLSpriteKit.framework"; sourceTree = "<group>"; };
 		5A2008501DAA6F7900441D09 /* JShapedTetrimino.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JShapedTetrimino.swift; sourceTree = "<group>"; };
 		5A2008521DAA737000441D09 /* LShapedTetrimino.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LShapedTetrimino.swift; sourceTree = "<group>"; };
 		5A2008541DAA9E8E00441D09 /* SShapedTetrimino.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SShapedTetrimino.swift; sourceTree = "<group>"; };
@@ -75,8 +76,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5A1D0A891DBE091000518B6B /* HLSpriteKit.framework in Frameworks */,
 				5AFEC0FC1D9FC5340054FAAA /* EZSwiftExtensions.framework in Frameworks */,
-				5AFEC0FD1D9FC5340054FAAA /* HLSpriteKit.framework in Frameworks */,
 				DE2B6DA7BE2CC352D9BE89FB /* Pods_SimpleTetris.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -146,6 +147,7 @@
 		8D79E4E4E8AF8ACB410C019C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				5A1D0A881DBE091000518B6B /* HLSpriteKit.framework */,
 				5AFEC0FA1D9FC5340054FAAA /* EZSwiftExtensions.framework */,
 				5AFEC0FB1D9FC5340054FAAA /* HLSpriteKit.framework */,
 				4F4144C4C4E932A1C4947224 /* Pods_SimpleTetris.framework */,

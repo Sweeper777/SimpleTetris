@@ -7,6 +7,7 @@
 //
 
 #import <SpriteKit/SpriteKit.h>
+#import <TargetConditionals.h>
 
 #import "HLComponentNode.h"
 #import "HLGestureTarget.h"
@@ -38,19 +39,23 @@ typedef NS_ENUM(NSInteger, HLScrollNodeContentScaleMinimumMode)
 };
 
 /**
- An `HLScrollNode` provides support for scrolling and scaling its content (set via the
- `contentNode` property) with pan and pinch gestures.
+ An `HLScrollNode` provides support for scrolling and zooming its content (set by the
+ `contentNode` property).
 
  The `HLScrollNode` is not completely analogous to `UIScrollView`, but the similarity is
  deliberate.  One notable difference: The `HLScrollNode` does not currently clip the
  contents to its own size except when configured to do so using the `contentClipped`
  property.
 
- ## Common Gesture Handling Configurations
+ ## Common User Interaction Configurations
 
- - Set this node as its own gesture target (via `[SKNode+HLGestureTarget
-   hlSetGestureTarget]`) to get one-finger scrolling and two-finger pinch scaling
-   behavior.
+ As a gesture target:
+
+ - Set this node as its own gesture target (using `[SKNode+HLGestureTarget
+   hlSetGestureTarget]`) to get scrolling on pan (under iOS) or left-click (under macOS),
+   and zooming on pinch (under iOS and macOS trackpad).  (Mouse scroll wheel would be good
+   for zooming under macOS, but scroll wheel events are not forwarded to the scene by
+   `SKView`.)
 
  Often the content node will want to handle taps (and the like) while letting pan and
  pinch gestures fall through to the scroll node.  It depends a little on the scene
@@ -58,6 +63,18 @@ typedef NS_ENUM(NSInteger, HLScrollNodeContentScaleMinimumMode)
  for pan and pinch gesture recognizers in the content node's gesture target implementation
  of `addToGestureRecognizer:firstTouch:isInside:`.  See, for instance, the implementation
  of that method in `HLTapGestureTarget`.
+
+ As a `UIResponder`:
+
+ - Set this node's `userInteractionEnabled` property to true to get one-finger scrolling
+   and two-finger pinch zooming behavior.  (The `SKView` must have `multipleTouchEnabled`
+   in order to forward two-finger gestures to nodes.)
+
+ As an `NSResponder`:
+
+ - Set this node's `userInteractionEnabled` property to true to get scrolling on left mouse
+   button drag.  (Mouse scroll wheel would be a good candidate for zooming interaction, but
+   scroll wheel events are not forwarded to the scene by `SKView`.)
 */
 @interface HLScrollNode : HLComponentNode <NSCoding, HLGestureTarget>
 
@@ -101,7 +118,11 @@ typedef NS_ENUM(NSInteger, HLScrollNodeContentScaleMinimumMode)
                  contentSize:(CGSize)contentSize
           contentAnchorPoint:(CGPoint)contentAnchorPoint
                contentOffset:(CGPoint)contentOffset
+#if TARGET_OS_IPHONE
                 contentInset:(UIEdgeInsets)contentInset
+#else
+                contentInset:(NSEdgeInsets)contentInset
+#endif
                 contentScale:(CGFloat)contentScale
          contentScaleMinimum:(CGFloat)contentScaleMinimum
      contentScaleMinimumMode:(HLScrollNodeContentScaleMinimumMode)contentScaleMinimumMode
@@ -185,7 +206,11 @@ typedef NS_ENUM(NSInteger, HLScrollNodeContentScaleMinimumMode)
 
  Default value `UIEdgeInsetsZero`.
 */
+#if TARGET_OS_IPHONE
 @property (nonatomic, assign) UIEdgeInsets contentInset;
+#else
+@property (nonatomic, assign) NSEdgeInsets contentInset;
+#endif
 
 /**
  The configured minimum value for content scale (when zooming out).
@@ -217,12 +242,11 @@ typedef NS_ENUM(NSInteger, HLScrollNodeContentScaleMinimumMode)
  @bug When a descendant node of the `contentNode` is an `SKCropNode`, the clipping of
       contents is irregular, affecting some descendants but not others.  Unfortunately
       it can be difficult to determine the culprit, since crop nodes are sometimes
-      hidden in the implementation of custom nodes.  For instance, `HLToolbarNode`
-      includes a crop node in its hierarchy of children nodes.  If a toolbarnode
-      is added to the content of a scroll node, clipping will be affected for all
-      other children of the content node.
+      hidden in the implementation of custom nodes.  Also: In certain versions of iOS,
+      adding an SKEffectNode as a descendant of an SKCropNode causes the effect to render
+      incorrectly.
 */
-@property (nonatomic, getter=isContentClipped) BOOL contentClipped;
+@property (nonatomic, assign, getter=isContentClipped) BOOL contentClipped;
 
 /// @name Setting Content Offset and Scale
 

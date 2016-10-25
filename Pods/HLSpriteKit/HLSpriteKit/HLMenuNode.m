@@ -12,6 +12,8 @@
 #import "HLLabelButtonNode.h"
 #import "SKNode+HLGestureTarget.h"
 
+static const NSTimeInterval HLMenuNodeLongSelectedDuration = 0.5;
+
 enum {
   HLMenuNodeZPositionLayerButtons = 0,
   HLMenuNodeZPositionLayerCount
@@ -41,6 +43,12 @@ HLMenuNodeValidateButtonPrototype(SKNode *buttonPrototype, NSString *label)
 {
   SKNode *_buttonsNode;
   HLMenu *_currentMenu;
+
+#if TARGET_OS_IPHONE
+  NSTimeInterval _touchesBeganTimestamp;
+#else
+  NSTimeInterval _mouseDownTimestamp;
+#endif
 }
 
 - (instancetype)init
@@ -52,11 +60,11 @@ HLMenuNodeValidateButtonPrototype(SKNode *buttonPrototype, NSString *label)
     // or seem to do nothing when used without configuration.
     _itemSeparatorSize = 4.0f;
     _anchorPoint = CGPointMake(0.5f, 0.5f);
-    HLLabelButtonNode *itemButtonPrototype = [[HLLabelButtonNode alloc] initWithColor:[UIColor blackColor] size:CGSizeMake(180.0f, 0.0f)];
+    HLLabelButtonNode *itemButtonPrototype = [[HLLabelButtonNode alloc] initWithColor:[SKColor blackColor] size:CGSizeMake(180.0f, 0.0f)];
     itemButtonPrototype.automaticHeight = YES;
     itemButtonPrototype.fontName = @"Helvetica";
     itemButtonPrototype.fontSize = 24.0f;
-    itemButtonPrototype.fontColor = [UIColor whiteColor];
+    itemButtonPrototype.fontColor = [SKColor whiteColor];
     itemButtonPrototype.verticalAlignmentMode = HLLabelNodeVerticalAlignFont;
     _itemButtonPrototype = itemButtonPrototype;
     _menuItemButtonPrototype = nil;
@@ -72,11 +80,16 @@ HLMenuNodeValidateButtonPrototype(SKNode *buttonPrototype, NSString *label)
   self = [super initWithCoder:aDecoder];
   if (self) {
     _delegate = [aDecoder decodeObjectForKey:@"delegate"];
-    _menu = [aDecoder decodeObjectForKey:@"menu"];
+    _topMenu = [aDecoder decodeObjectForKey:@"topMenu"];
     _currentMenu = [aDecoder decodeObjectForKey:@"currentMenu"];
     _itemSeparatorSize = (CGFloat)[aDecoder decodeDoubleForKey:@"itemSeparatorSize"];
+#if TARGET_OS_IPHONE
     _size = [aDecoder decodeCGSizeForKey:@"size"];
     _anchorPoint = [aDecoder decodeCGPointForKey:@"anchorPoint"];
+#else
+    _size = [aDecoder decodeSizeForKey:@"size"];
+    _anchorPoint = [aDecoder decodePointForKey:@"anchorPoint"];
+#endif
     _itemButtonPrototype = [aDecoder decodeObjectForKey:@"itemButtonPrototype"];
     _menuItemButtonPrototype = [aDecoder decodeObjectForKey:@"menuItemButtonPrototype"];
     _backItemButtonPrototype = [aDecoder decodeObjectForKey:@"backItemButtonPrototype"];
@@ -92,7 +105,7 @@ HLMenuNodeValidateButtonPrototype(SKNode *buttonPrototype, NSString *label)
 
 - (void)encodeWithCoder:(NSCoder *)aCoder
 {
-  // Don't encode buttons node; it can be regenerated from _menu.
+  // Don't encode buttons node; it can be regenerated from _topMenu.
   if (_buttonsNode) {
     [_buttonsNode removeFromParent];
   }
@@ -100,11 +113,16 @@ HLMenuNodeValidateButtonPrototype(SKNode *buttonPrototype, NSString *label)
   // Encode.
   [super encodeWithCoder:aCoder];
   [aCoder encodeConditionalObject:_delegate forKey:@"delegate"];
-  [aCoder encodeObject:_menu forKey:@"menu"];
+  [aCoder encodeObject:_topMenu forKey:@"topMenu"];
   [aCoder encodeObject:_currentMenu forKey:@"currentMenu"];
   [aCoder encodeDouble:_itemSeparatorSize forKey:@"itemSeparatorSize"];
+#if TARGET_OS_IPHONE
   [aCoder encodeCGSize:_size forKey:@"size"];
   [aCoder encodeCGPoint:_anchorPoint forKey:@"anchorPoint"];
+#else
+  [aCoder encodeSize:_size forKey:@"size"];
+  [aCoder encodePoint:_anchorPoint forKey:@"anchorPoint"];
+#endif
   [aCoder encodeObject:_itemButtonPrototype forKey:@"itemButtonPrototype"];
   [aCoder encodeObject:_menuItemButtonPrototype forKey:@"menuItemButtonPrototype"];
   [aCoder encodeObject:_backItemButtonPrototype forKey:@"backItemButtonPrototype"];
@@ -135,10 +153,10 @@ HLMenuNodeValidateButtonPrototype(SKNode *buttonPrototype, NSString *label)
   return _currentMenu;
 }
 
-- (void)setMenu:(HLMenu *)menu animation:(HLMenuNodeAnimation)animation
+- (void)setTopMenu:(HLMenu *)topMenu animation:(HLMenuNodeAnimation)animation
 {
-  _menu = menu;
-  _currentMenu = menu;
+  _topMenu = topMenu;
+  _currentMenu = topMenu;
   if (_currentMenu) {
     [self HL_showCurrentMenuAnimation:animation];
   }
@@ -172,13 +190,13 @@ HLMenuNodeValidateButtonPrototype(SKNode *buttonPrototype, NSString *label)
 
 - (void)navigateToTopMenuAnimation:(HLMenuNodeAnimation)animation
 {
-  _currentMenu = _menu;
+  _currentMenu = _topMenu;
   [self HL_showCurrentMenuAnimation:animation];
 }
 
 - (void)navigateToSubmenuWithPath:(NSArray *)path animation:(HLMenuNodeAnimation)animation
 {
-  HLMenuItem *item = [_menu itemForPath:path];
+  HLMenuItem *item = [_topMenu itemForPath:path];
   if (![item isKindOfClass:[HLMenu class]]) {
     return;
   }
@@ -192,18 +210,24 @@ HLMenuNodeValidateButtonPrototype(SKNode *buttonPrototype, NSString *label)
 
 - (NSArray *)addsToGestureRecognizers
 {
+#if TARGET_OS_IPHONE
   return @[ [[UITapGestureRecognizer alloc] init],
             [[UILongPressGestureRecognizer alloc] init] ];
+#else
+  return @[ [[NSClickGestureRecognizer alloc] init],
+            [[NSPressGestureRecognizer alloc] init] ];
+#endif
 }
 
-- (BOOL)addToGesture:(UIGestureRecognizer *)gestureRecognizer firstTouch:(UITouch *)touch isInside:(BOOL *)isInside
+- (BOOL)addToGesture:(HLGestureRecognizer *)gestureRecognizer firstLocation:(CGPoint)sceneLocation isInside:(BOOL *)isInside
 {
-  CGPoint location = [touch locationInNode:self];
+  CGPoint location = [self convertPoint:sceneLocation fromNode:self.scene];
 
   *isInside = NO;
   for (SKNode *buttonNode in _buttonsNode.children) {
     if ([buttonNode containsPoint:location]) {
       *isInside = YES;
+#if TARGET_OS_IPHONE
       if ([gestureRecognizer isKindOfClass:[UITapGestureRecognizer class]]) {
         // note: Require only one tap and one touch, same as our gesture recognizer
         // returned from addsToGestureRecognizers?  I think it's okay to be non-strict.
@@ -214,57 +238,146 @@ HLMenuNodeValidateButtonPrototype(SKNode *buttonPrototype, NSString *label)
         [gestureRecognizer addTarget:self action:@selector(handleLongPress:)];
         return YES;
       }
+#else
+      if ([gestureRecognizer isKindOfClass:[NSClickGestureRecognizer class]]) {
+        [gestureRecognizer addTarget:self action:@selector(handleClick:)];
+        return YES;
+      }
+      if ([gestureRecognizer isKindOfClass:[NSPressGestureRecognizer class]]) {
+        [gestureRecognizer addTarget:self action:@selector(handleLongPress:)];
+        return YES;
+      }
+#endif
       break;
     }
   }
   return NO;
 }
 
-- (void)handleTap:(UIGestureRecognizer *)gestureRecognizer
+#if TARGET_OS_IPHONE
+- (void)handleTap:(HLGestureRecognizer *)gestureRecognizer
+#else
+- (void)handleClick:(HLGestureRecognizer *)gestureRecognizer
+#endif
 {
-  // note: Clearly, could retain state from addToGesture if it improved performance
-  // significantly.
   CGPoint viewLocation = [gestureRecognizer locationInView:self.scene.view];
   CGPoint sceneLocation = [self.scene convertPointFromView:viewLocation];
   CGPoint menuLocation = [self convertPoint:sceneLocation fromNode:self.scene];
 
+  // note: This search was just done in addToGesture; if it made a difference,
+  // we could retain state from there.
   NSUInteger i = 0;
   for (SKNode *buttonNode in _buttonsNode.children) {
     if ([buttonNode containsPoint:menuLocation]) {
-      [self HL_tappedItem:i];
+      [self HL_selectedItem:i];
       return;
     }
     ++i;
   }
 }
 
-- (void)handleLongPress:(UIGestureRecognizer *)gestureRecognizer
+- (void)handleLongPress:(HLGestureRecognizer *)gestureRecognizer
 {
+#if TARGET_OS_IPHONE
   if (gestureRecognizer.state != UIGestureRecognizerStateBegan) {
     return;
   }
-
-  id <HLMenuNodeDelegate> delegate = _delegate;
-  if (!delegate || ![delegate respondsToSelector:@selector(menuNode:didLongPressMenuItem:itemIndex:)]) {
+#else
+  if (gestureRecognizer.state != NSGestureRecognizerStateBegan) {
     return;
   }
+#endif
 
-  // note: Clearly, could retain state from addToGesture if it improved performance
-  // significantly.
   CGPoint viewLocation = [gestureRecognizer locationInView:self.scene.view];
   CGPoint sceneLocation = [self.scene convertPointFromView:viewLocation];
   CGPoint menuLocation = [self convertPoint:sceneLocation fromNode:self.scene];
-  
+
   NSUInteger i = 0;
   for (SKNode *buttonNode in _buttonsNode.children) {
     if ([buttonNode containsPoint:menuLocation]) {
-      HLMenuItem *menuItem = [_currentMenu itemAtIndex:i];
-      [delegate menuNode:self didLongPressMenuItem:menuItem itemIndex:i];
+      [self HL_longSelectedItem:i];
       return;
     }
     ++i;
   }
 }
+
+#if TARGET_OS_IPHONE
+
+#pragma mark -
+#pragma mark UIResponder
+
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
+{
+  _touchesBeganTimestamp = event.timestamp;
+}
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{
+  if ([touches count] > 1) {
+    return;
+  }
+
+  UITouch *touch = [touches anyObject];
+  if (touch.tapCount > 1) {
+    return;
+  }
+
+  CGPoint viewLocation = [touch locationInView:self.scene.view];
+  CGPoint sceneLocation = [self.scene convertPointFromView:viewLocation];
+  CGPoint menuLocation = [self convertPoint:sceneLocation fromNode:self.scene];
+
+  NSTimeInterval touchDuration = event.timestamp - _touchesBeganTimestamp;
+
+  NSUInteger i = 0;
+  for (SKNode *buttonNode in _buttonsNode.children) {
+    if ([buttonNode containsPoint:menuLocation]) {
+      if (touchDuration < HLMenuNodeLongSelectedDuration) {
+        [self HL_selectedItem:i];
+      } else {
+        [self HL_longSelectedItem:i];
+      }
+      return;
+    }
+    ++i;
+  }
+}
+
+#else
+
+#pragma mark -
+#pragma mark NSResponder
+
+- (void)mouseDown:(NSEvent *)event
+{
+  _mouseDownTimestamp = event.timestamp;
+}
+
+- (void)mouseUp:(NSEvent *)event
+{
+  if (event.clickCount > 1) {
+    return;
+  }
+
+  CGPoint menuLocation = [event locationInNode:self];
+
+  NSTimeInterval mouseDuration = event.timestamp - _mouseDownTimestamp;
+
+  NSUInteger i = 0;
+  for (SKNode *buttonNode in _buttonsNode.children) {
+    if ([buttonNode containsPoint:menuLocation]) {
+      if (mouseDuration < HLMenuNodeLongSelectedDuration) {
+        [self HL_selectedItem:i];
+      } else {
+        [self HL_longSelectedItem:i];
+      }
+      return;
+    }
+    ++i;
+  }
+}
+
+#endif
 
 #pragma mark -
 #pragma mark Private
@@ -400,7 +513,7 @@ HLMenuNodeValidateButtonPrototype(SKNode *buttonPrototype, NSString *label)
   }
 }
 
-- (void)HL_tappedItem:(NSUInteger)itemIndex
+- (void)HL_selectedItem:(NSUInteger)itemIndex
 {
   HLMenuItem *item = [_currentMenu itemAtIndex:itemIndex];
 
@@ -422,10 +535,17 @@ HLMenuNodeValidateButtonPrototype(SKNode *buttonPrototype, NSString *label)
 
   id <HLMenuNodeDelegate> delegate = self.delegate;
   if (delegate) {
+#if TARGET_OS_IPHONE
     if ([delegate respondsToSelector:@selector(menuNode:shouldTapMenuItem:itemIndex:)]
         && ![delegate menuNode:self shouldTapMenuItem:item itemIndex:itemIndex]) {
       return;
     }
+#else
+    if ([delegate respondsToSelector:@selector(menuNode:shouldClickMenuItem:itemIndex:)]
+        && ![delegate menuNode:self shouldClickMenuItem:item itemIndex:itemIndex]) {
+      return;
+    }
+#endif
   }
 
   if ([item isKindOfClass:[HLMenu class]]) {
@@ -440,9 +560,33 @@ HLMenuNodeValidateButtonPrototype(SKNode *buttonPrototype, NSString *label)
   }
 
   if (delegate) {
+#if TARGET_OS_IPHONE
     if ([delegate respondsToSelector:@selector(menuNode:didTapMenuItem:itemIndex:)]) {
       [delegate menuNode:self didTapMenuItem:item itemIndex:itemIndex];
     }
+#else
+    if ([delegate respondsToSelector:@selector(menuNode:didClickMenuItem:itemIndex:)]) {
+      [delegate menuNode:self didClickMenuItem:item itemIndex:itemIndex];
+    }
+#endif
+  }
+}
+
+- (void)HL_longSelectedItem:(NSUInteger)itemIndex
+{
+  HLMenuItem *item = [_currentMenu itemAtIndex:itemIndex];
+
+  id <HLMenuNodeDelegate> delegate = self.delegate;
+  if (delegate) {
+#if TARGET_OS_IPHONE
+    if ([delegate respondsToSelector:@selector(menuNode:didLongPressMenuItem:itemIndex:)]) {
+      [delegate menuNode:self didLongPressMenuItem:item itemIndex:itemIndex];
+    }
+#else
+    if ([delegate respondsToSelector:@selector(menuNode:didLongClickMenuItem:itemIndex:)]) {
+      [delegate menuNode:self didLongClickMenuItem:item itemIndex:itemIndex];
+    }
+#endif
   }
 }
 
@@ -550,6 +694,9 @@ HLMenuNodeValidateButtonPrototype(SKNode *buttonPrototype, NSString *label)
   if (self) {
     if (items) {
       _items = [NSMutableArray arrayWithArray:items];
+      [_items enumerateObjectsUsingBlock:^(HLMenuItem *item, NSUInteger index, BOOL *stop){
+        item.parent = self;
+      }];
     } else {
       _items = [NSMutableArray array];
     }

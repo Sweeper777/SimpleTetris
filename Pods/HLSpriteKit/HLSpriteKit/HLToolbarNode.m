@@ -26,7 +26,6 @@ static const NSTimeInterval HLToolbarSlideDuration = 0.15f;
   SKSpriteNode *_backgroundNode;
   SKCropNode *_cropNode;
   HLItemsNode *_squaresNode;
-  CGPoint _lastOrigin;
 }
 
 - (instancetype)init
@@ -49,11 +48,6 @@ static const NSTimeInterval HLToolbarSlideDuration = 0.15f;
 
     _backgroundNode = [SKSpriteNode spriteNodeWithColor:[SKColor colorWithWhite:0.0f alpha:0.5f] size:CGSizeZero];
     [self addChild:_backgroundNode];
-
-    // note: All animations happen within a cropped area, currently.
-    _cropNode = [SKCropNode node];
-    _cropNode.maskNode = [SKSpriteNode spriteNodeWithColor:[SKColor colorWithWhite:1.0f alpha:1.0f] size:CGSizeZero];
-    [self addChild:_cropNode];
   }
   return self;
 }
@@ -79,14 +73,17 @@ static const NSTimeInterval HLToolbarSlideDuration = 0.15f;
     _automaticWidth = [aDecoder decodeBoolForKey:@"automaticWidth"];
     _automaticHeight = [aDecoder decodeBoolForKey:@"automaticHeight"];
     _automaticToolsScaleLimit = [aDecoder decodeBoolForKey:@"automaticToolsScaleLimit"];
+#if TARGET_OS_IPHONE
     _size = [aDecoder decodeCGSizeForKey:@"size"];
     _anchorPoint = [aDecoder decodeCGPointForKey:@"anchorPoint"];
+#else
+    _size = [aDecoder decodeSizeForKey:@"size"];
+    _anchorPoint = [aDecoder decodePointForKey:@"anchorPoint"];
+#endif
     _justification = [aDecoder decodeIntegerForKey:@"justification"];
     _backgroundBorderSize = (CGFloat)[aDecoder decodeDoubleForKey:@"backgroundBorderSize"];
     _squareSeparatorSize = (CGFloat)[aDecoder decodeDoubleForKey:@"squareSeparatorSize"];
     _toolPad = (CGFloat)[aDecoder decodeDoubleForKey:@"toolPad"];
-
-    _lastOrigin = [aDecoder decodeCGPointForKey:@"lastOrigin"];
   }
   return self;
 }
@@ -111,14 +108,17 @@ static const NSTimeInterval HLToolbarSlideDuration = 0.15f;
   [aCoder encodeBool:_automaticWidth forKey:@"automaticWidth"];
   [aCoder encodeBool:_automaticHeight forKey:@"automaticHeight"];
   [aCoder encodeBool:_automaticToolsScaleLimit forKey:@"automaticToolsScaleLimit"];
+#if TARGET_OS_IPHONE
   [aCoder encodeCGSize:_size forKey:@"size"];
   [aCoder encodeCGPoint:_anchorPoint forKey:@"anchorPoint"];
+#else
+  [aCoder encodeSize:_size forKey:@"size"];
+  [aCoder encodePoint:_anchorPoint forKey:@"anchorPoint"];
+#endif
   [aCoder encodeInteger:_justification forKey:@"justification"];
   [aCoder encodeDouble:_backgroundBorderSize forKey:@"backgroundBorderSize"];
   [aCoder encodeDouble:_squareSeparatorSize forKey:@"squareSeparatorSize"];
   [aCoder encodeDouble:_toolPad forKey:@"toolPad"];
-
-  [aCoder encodeCGPoint:_lastOrigin forKey:@"lastOrigin"];
 }
 
 - (instancetype)copyWithZone:(NSZone *)zone
@@ -137,7 +137,7 @@ static const NSTimeInterval HLToolbarSlideDuration = 0.15f;
   return _backgroundNode.color;
 }
 
-- (void)setSquareColor:(UIColor *)squareColor
+- (void)setSquareColor:(SKColor *)squareColor
 {
   _squareColor = squareColor;
   NSArray *squareNodes = _squaresNode.itemNodes;
@@ -146,7 +146,7 @@ static const NSTimeInterval HLToolbarSlideDuration = 0.15f;
   }
 }
 
-- (void)setHighlightColor:(UIColor *)highlightColor
+- (void)setHighlightColor:(SKColor *)highlightColor
 {
   _highlightColor = highlightColor;
   NSArray *squareNodes = _squaresNode.itemNodes;
@@ -186,7 +186,11 @@ static const NSTimeInterval HLToolbarSlideDuration = 0.15f;
   // containsPoint).  But if I'm really correcting a bug here, then this is bigger than just
   // HLGestureTarget and should apply to all callers.  (Well, and all callers of calculateAccumulatedFrame,
   // too.)
-  return [_backgroundNode containsPoint:[self convertPoint:p fromNode:self.parent]];
+  if (_contentClipped) {
+    return [_backgroundNode containsPoint:[self convertPoint:p fromNode:self.parent]];
+  } else {
+    return [super containsPoint:p];
+  }
 }
 
 - (void)setZPositionScale:(CGFloat)zPositionScale
@@ -217,7 +221,11 @@ static const NSTimeInterval HLToolbarSlideDuration = 0.15f;
 
   HLItemsNode *oldSquaresNode = _squaresNode;
   _squaresNode = squaresNode;
-  [_cropNode addChild:squaresNode];
+  if (_contentClipped) {
+    [_cropNode addChild:squaresNode];
+  } else {
+    [self addChild:squaresNode];
+  }
 
   CGSize oldSize = _size;
   [self HL_layoutXYAnimation:animation];
@@ -275,6 +283,32 @@ static const NSTimeInterval HLToolbarSlideDuration = 0.15f;
 - (void)layoutToolsAnimation:(HLToolbarNodeAnimation)animation
 {
   [self HL_layoutXYAnimation:animation];
+}
+
+- (void)setContentClipped:(BOOL)contentClipped
+{
+  if (contentClipped == _contentClipped) {
+    return;
+  }
+  _contentClipped = contentClipped;
+  if (_contentClipped) {
+    _cropNode = [SKCropNode node];
+    SKSpriteNode *maskNode = [SKSpriteNode spriteNodeWithColor:[SKColor blackColor] size:_size];
+    maskNode.anchorPoint = _anchorPoint;
+    _cropNode.maskNode = maskNode;
+    [self addChild:_cropNode];
+    if (_squaresNode) {
+      [_squaresNode removeFromParent];
+      [_cropNode addChild:_squaresNode];
+    }
+  } else {
+    [_cropNode removeFromParent];
+    _cropNode = nil;
+    if (_squaresNode) {
+      [_squaresNode removeFromParent];
+      [self addChild:_squaresNode];
+    }
+  }
 }
 
 - (NSUInteger)toolCount
@@ -376,87 +410,40 @@ static const NSTimeInterval HLToolbarSlideDuration = 0.15f;
   }
 }
 
-- (void)showWithOrigin:(CGPoint)origin
-         finalPosition:(CGPoint)finalPosition
-             fullScale:(CGFloat)fullScale
-              animated:(BOOL)animated
-{
-  // noob: I'm encapsulating this animation within the toolbar, since the toolbar knows cool ways to make itself
-  // appear, and can track some useful state.  But the owner of this toolbar knows the anchor, position, size, and
-  // scale of this toolbar, which then all needs to be communicated to this animation method.  Kind of a pain.
-
-  // noob: I assume this will always take effect before we are removed from parent (at the end of the hide).
-  [self removeActionForKey:@"hide"];
-
-  if (animated) {
-    const NSTimeInterval HLToolbarNodeShowDuration = 0.15;
-    self.xScale = 0.0f;
-    self.yScale = 0.0f;
-    SKAction *grow = [SKAction scaleTo:fullScale duration:HLToolbarNodeShowDuration];
-    self.position = origin;
-    SKAction *move = [SKAction moveTo:finalPosition duration:HLToolbarNodeShowDuration];
-    SKAction *showGroup = [SKAction group:@[ grow, move ]];
-    showGroup.timingMode = SKActionTimingEaseOut;
-    [self runAction:showGroup];
-  } else {
-    self.position = finalPosition;
-    self.xScale = fullScale;
-    self.yScale = fullScale;
-  }
-  _lastOrigin = origin;
-}
-
-- (void)showUpdateOrigin:(CGPoint)origin
-{
-  _lastOrigin = origin;
-}
-
-- (void)hideAnimated:(BOOL)animated
-{
-  if (animated) {
-    const NSTimeInterval HLToolbarNodeHideDuration = 0.15;
-    SKAction *shrink = [SKAction scaleTo:0.0f duration:HLToolbarNodeHideDuration];
-    SKAction *move = [SKAction moveTo:_lastOrigin duration:HLToolbarNodeHideDuration];
-    SKAction *hideGroup = [SKAction group:@[ shrink, move]];
-    hideGroup.timingMode = SKActionTimingEaseIn;
-    // note: Avoiding [SKAction removeFromParent]; see
-    //   http://stackoverflow.com/questions/26131591/exc-bad-access-sprite-kit/26188747
-    SKAction *remove = [SKAction performSelector:@selector(removeFromParent) onTarget:self];
-    SKAction *hideSequence = [SKAction sequence:@[ hideGroup, remove ]];
-    [self runAction:hideSequence withKey:@"hide"];
-  } else {
-    // note: It's a little perverse to set position back to _lastOrigin, but we do it for
-    // consistency between animated and non-animated.  The caller might be confused to find
-    // that any changes to position while the toolbar is showing will be discarded once the
-    // toolbar is hidden again; on the other hand, showUpdateOrigin is provided for the
-    // purpose, and the caller will be forced to explicitly pass position again when calling
-    // showWithOrigin.
-    self.position = _lastOrigin;
-    [self removeFromParent];
-  }
-}
-
 #pragma mark -
 #pragma mark HLGestureTarget
 
 - (NSArray *)addsToGestureRecognizers
 {
+#if TARGET_OS_IPHONE
   return @[ [[UITapGestureRecognizer alloc] init] ];
+#else
+  return @[ [[NSClickGestureRecognizer alloc] init] ];
+#endif
 }
 
-- (BOOL)addToGesture:(UIGestureRecognizer *)gestureRecognizer firstTouch:(UITouch *)touch isInside:(BOOL *)isInside
+- (BOOL)addToGesture:(HLGestureRecognizer *)gestureRecognizer firstLocation:(CGPoint)sceneLocation isInside:(BOOL *)isInside
 {
   *isInside = YES;
+#if TARGET_OS_IPHONE
   if ([gestureRecognizer isKindOfClass:[UITapGestureRecognizer class]]) {
     // note: Require only one tap and one touch, same as our gesture recognizer returned
     // from addsToGestureRecognizers?  I think it's okay to be non-strict.
     [gestureRecognizer addTarget:self action:@selector(handleTap:)];
     return YES;
   }
+#else
+  if ([gestureRecognizer isKindOfClass:[NSClickGestureRecognizer class]]) {
+    [gestureRecognizer addTarget:self action:@selector(handleClick:)];
+    return YES;
+  }
+#endif
   return NO;
 }
 
-- (void)handleTap:(UIGestureRecognizer *)gestureRecognizer
+#if TARGET_OS_IPHONE
+
+- (void)handleTap:(HLGestureRecognizer *)gestureRecognizer
 {
   CGPoint viewLocation = [gestureRecognizer locationInView:self.scene.view];
   CGPoint sceneLocation = [self.scene convertPointFromView:viewLocation];
@@ -476,6 +463,96 @@ static const NSTimeInterval HLToolbarSlideDuration = 0.15f;
     [delegate toolbarNode:self didTapTool:toolTag];
   }
 }
+
+#else
+
+- (void)handleClick:(HLGestureRecognizer *)gestureRecognizer
+{
+  CGPoint viewLocation = [gestureRecognizer locationInView:self.scene.view];
+  CGPoint sceneLocation = [self.scene convertPointFromView:viewLocation];
+  CGPoint location = [self convertPoint:sceneLocation fromNode:self.scene];
+
+  NSString *toolTag = [self toolAtLocation:location];
+  if (!toolTag) {
+    return;
+  }
+
+  if (_toolClickedBlock) {
+    _toolClickedBlock(toolTag);
+  }
+
+  id <HLToolbarNodeDelegate> delegate = _delegate;
+  if (delegate) {
+    [delegate toolbarNode:self didClickTool:toolTag];
+  }
+}
+
+#endif
+
+#if TARGET_OS_IPHONE
+
+#pragma mark -
+#pragma mark UIResponder
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{
+  if ([touches count] > 1) {
+    return;
+  }
+
+  UITouch *touch = [touches anyObject];
+  if (touch.tapCount > 1) {
+    return;
+  }
+
+  CGPoint viewLocation = [touch locationInView:self.scene.view];
+  CGPoint sceneLocation = [self.scene convertPointFromView:viewLocation];
+  CGPoint location = [self convertPoint:sceneLocation fromNode:self.scene];
+
+  NSString *toolTag = [self toolAtLocation:location];
+  if (!toolTag) {
+    return;
+  }
+
+  if (_toolTappedBlock) {
+    _toolTappedBlock(toolTag);
+  }
+
+  id <HLToolbarNodeDelegate> delegate = _delegate;
+  if (delegate) {
+    [delegate toolbarNode:self didTapTool:toolTag];
+  }
+}
+
+#else
+
+#pragma mark -
+#pragma mark NSResponder
+
+- (void)mouseUp:(NSEvent *)event
+{
+  if (event.clickCount > 1) {
+    return;
+  }
+
+  CGPoint location = [event locationInNode:self];
+
+  NSString *toolTag = [self toolAtLocation:location];
+  if (!toolTag) {
+    return;
+  }
+
+  if (_toolClickedBlock) {
+    _toolClickedBlock(toolTag);
+  }
+
+  id <HLToolbarNodeDelegate> delegate = _delegate;
+  if (delegate) {
+    [delegate toolbarNode:self didClickTool:toolTag];
+  }
+}
+
+#endif
 
 #pragma mark -
 #pragma mark Private
@@ -565,23 +642,29 @@ static const NSTimeInterval HLToolbarSlideDuration = 0.15f;
   _size = finalToolbarSize;
   if (animation == HLToolbarNodeAnimationNone) {
     _backgroundNode.size = finalToolbarSize;
-    [(SKSpriteNode *)_cropNode.maskNode setSize:finalToolbarSize];
+    if (_contentClipped) {
+      [(SKSpriteNode *)_cropNode.maskNode setSize:finalToolbarSize];
+    }
   } else if (!CGSizeEqualToSize(_backgroundNode.size, finalToolbarSize)) {
     SKAction *resize = [SKAction resizeToWidth:finalToolbarSize.width height:finalToolbarSize.height duration:HLToolbarResizeDuration];
     resize.timingMode = SKActionTimingEaseOut;
     [_backgroundNode runAction:resize];
     // noob: The cropNode mask must be resized along with the toolbar size.  Or am I missing something?
-    SKAction *resizeMaskNode = [SKAction customActionWithDuration:HLToolbarResizeDuration actionBlock:^(SKNode *node, CGFloat elapsedTime){
-      SKSpriteNode *maskNode = (SKSpriteNode *)node;
-      maskNode.size = self->_backgroundNode.size;
-    }];
-    resizeMaskNode.timingMode = resize.timingMode;
-    [_cropNode.maskNode runAction:resizeMaskNode];
+    if (_contentClipped) {
+      SKAction *resizeMaskNode = [SKAction customActionWithDuration:HLToolbarResizeDuration actionBlock:^(SKNode *node, CGFloat elapsedTime){
+        SKSpriteNode *maskNode = (SKSpriteNode *)node;
+        maskNode.size = self->_backgroundNode.size;
+      }];
+      resizeMaskNode.timingMode = resize.timingMode;
+      [_cropNode.maskNode runAction:resizeMaskNode];
+    }
   }
 
   // Set toolbar anchorPoint.
   _backgroundNode.anchorPoint = _anchorPoint;
-  [(SKSpriteNode *)_cropNode.maskNode setAnchorPoint:_anchorPoint];
+  if (_contentClipped) {
+    [(SKSpriteNode *)_cropNode.maskNode setAnchorPoint:_anchorPoint];
+  }
 
   // Calculate justification offset.
   CGFloat justificationOffset = 0.0f;
@@ -630,6 +713,8 @@ static const NSTimeInterval HLToolbarSlideDuration = 0.15f;
 
 @end
 
+#if TARGET_OS_IPHONE
+
 @implementation HLToolbarNodeMultiGestureTarget
 
 - (instancetype)initWithToolbarNode:(HLToolbarNode *)toolbarNode
@@ -651,7 +736,7 @@ static const NSTimeInterval HLToolbarSlideDuration = 0.15f;
             [[UIPanGestureRecognizer alloc] init] ];
 }
 
-- (BOOL)addToGesture:(UIGestureRecognizer *)gestureRecognizer firstTouch:(UITouch *)touch isInside:(BOOL *)isInside
+- (BOOL)addToGesture:(HLGestureRecognizer *)gestureRecognizer firstLocation:(CGPoint)sceneLocation isInside:(BOOL *)isInside
 {
   *isInside = YES;
   if ([gestureRecognizer isKindOfClass:[UITapGestureRecognizer class]]) {
@@ -746,3 +831,5 @@ static const NSTimeInterval HLToolbarSlideDuration = 0.15f;
 }
 
 @end
+
+#endif

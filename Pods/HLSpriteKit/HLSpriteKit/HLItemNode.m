@@ -85,6 +85,42 @@
   }
 }
 
+- (void)setContent:(SKNode *)contentNode contentDidSetEnabled:(BOOL *)contentDidSetEnabled contentDidSetHighlight:(BOOL *)contentDidSetHighlight
+{
+  SKNode *oldContentNode = [self childNodeWithName:@"content"];
+  *contentDidSetEnabled = NO;
+  *contentDidSetHighlight = NO;
+  // note: Doing an isEqual check seems like too much overhead for not much benefit;
+  // there's not really that much code below that we'd be short-circuiting.  But doing
+  // a quick pointer check seems nice to support the use-case where the owner has 100
+  // content nodes in an array and keeps setting-content on all of them whenever any
+  // of them change.
+  if (oldContentNode == contentNode) {
+    return;
+  }
+  if (oldContentNode) {
+    [oldContentNode removeFromParent];
+  }
+  if (contentNode) {
+    contentNode.name = @"content";
+    contentNode.zPosition = 0.0f;
+    if ([contentNode isKindOfClass:[HLComponentNode class]]) {
+      ((HLComponentNode *)contentNode).zPositionScale = self.zPositionScale;
+    }
+    if ([contentNode conformsToProtocol:@protocol(HLItemContentNode)]) {
+      if ([contentNode respondsToSelector:@selector(hlItemContentSetEnabled:)]) {
+        [(SKNode <HLItemContentNode> *)contentNode hlItemContentSetEnabled:_enabled];
+        *contentDidSetEnabled = YES;
+      }
+      if ([contentNode respondsToSelector:@selector(hlItemContentSetHighlight:)]) {
+        [(SKNode <HLItemContentNode> *)contentNode hlItemContentSetHighlight:_highlight];
+        *contentDidSetHighlight = YES;
+      }
+    }
+    [self addChild:contentNode];
+  }
+}
+
 - (SKNode *)content
 {
   return [self childNodeWithName:@"content"];
@@ -239,12 +275,20 @@ enum {
 
 - (void)setContent:(SKNode *)contentNode
 {
-  [super setContent:contentNode];
+  BOOL contentDidSetEnabled;
+  BOOL contentDidSetHighlight;
+  [super setContent:contentNode contentDidSetEnabled:&contentDidSetEnabled contentDidSetHighlight:&contentDidSetHighlight];
   if (contentNode) {
-    if (self.enabled) {
+    if (contentDidSetEnabled || self.enabled) {
       contentNode.alpha = _enabledAlpha;
     } else {
       contentNode.alpha = _disabledAlpha;
+    }
+    SKSpriteNode *backdropNode = (SKSpriteNode *)[self childNodeWithName:@"backdrop"];
+    if (contentDidSetHighlight || !self.highlight) {
+      backdropNode.color = _normalColor;
+    } else {
+      backdropNode.color = _highlightColor;
     }
   }
 }
@@ -351,7 +395,7 @@ contentDidSetHighlight:&contentDidSetHighlight];
   }
 }
 
-- (void)setHighlightColor:(UIColor *)highlightColor
+- (void)setHighlightColor:(SKColor *)highlightColor
 {
   _highlightColor = highlightColor;
   if (self.highlight) {

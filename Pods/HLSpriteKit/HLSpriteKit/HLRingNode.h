@@ -7,6 +7,7 @@
 //
 
 #import <SpriteKit/SpriteKit.h>
+#import <TargetConditionals.h>
 
 #import "HLComponentNode.h"
 #import "HLGestureTarget.h"
@@ -26,19 +27,33 @@
    `HLItemContentNode` in order to indicate various item states (like enabled and
    highlight), if desired.
 
- - Basic gesture handling support is provided.
+ - Basic user interaction support is provided.
 
- ## Common Gesture Handling Configurations
+ ## Common User Interaction Configurations
+
+ As a gesture target:
 
  - Set this node as its own gesture target (using `[SKNode+HLGestureTarget
-   hlSetGestureTarget]`) to get simple delegation and/or a callback for taps.  See
-   `HLRingNodeDelegate` for delegation and the `itemTappedBlock` property for setting a
-   callback block.
+   hlSetGestureTarget]`) to get simple delegation and/or a callback for taps or clicks.
+   See `HLRingNodeDelegate` for delegation and the `itemTappedBlock` or `itemClickedBlock`
+   properties for setting a callback block.
 
- - Set a custom gesture target to recognize and respond to other gestures.  (Convert touch
-   locations to this node's coordinate system and call `itemAtPoint` as desired.)
+ - Set a custom gesture target to recognize and respond to other gestures.  (Convert
+   gesture locations to this node's coordinate system and call `itemAtPoint` as desired.)
 
  - Leave the gesture target unset for no gesture handling.
+
+ As a `UIResponder`:
+
+ - Set this node's `userInteractionEnabled` property to true to get simple delegation
+   and/or a callback for taps.  See `HLRingNodeDelegate` for delegation and the
+   `itemTappedBlock` property for setting a callback block.
+
+ As an `NSResponder`:
+
+ - Set this node's `userInteractionEnabled` property to true to get simple delegation
+   and/or a callback for clicks.  See `HLRingNodeDelegate` for delegation and the
+   `itemClickedBlock` property for setting a callback block.
 */
 @interface HLRingNode : HLComponentNode <NSCopying, NSCoding, HLGestureTarget>
 
@@ -52,31 +67,52 @@
 */
 - (instancetype)initWithItemCount:(int)itemCount;
 
-/// @name Managing Interaction
+/// @name Setting the Delegate
 
 /**
- The delegate invoked on interaction (when this node is its own gesture handler).
-
- Unless this ring node is its own gesture handler, this delegate will not be called.
- See "Common Gesture Handling Configurations".
+ The ring node delegate.
 */
 @property (nonatomic, weak) id <HLRingNodeDelegate> delegate;
 
+/// @name Managing Interaction
+
+#if TARGET_OS_IPHONE
+
 /**
- A callback invoked when an item is tapped (when this node is its own gesture handler).
+ A callback invoked when an item is tapped.
 
  The index of the tapped item is passed as an argument to the callback.
 
  A tap is considered to be on an item if it is within the distance defined by
  `itemAtPointDistanceMax`.
 
- Unless this item node is its own gesture handler, this callback will not be invoked.  See
- "Common Gesture Handling Configurations".
+ Relevant to `HLGestureTarget` and `UIResponder` user interaction.
+ See "Common User Interaction Configurations".
 
  Beware retain cycles when using the callback to invoke a method in the owner.  As a safer
  alternative, use the item node's delegation interface; see `setDelegate:`.
 */
 @property (nonatomic, copy) void (^itemTappedBlock)(int itemIndex);
+
+#else
+
+/**
+ A callback invoked when an item is clicked.
+
+ The index of the clicked item is passed as an argument to the callback.
+
+ A click is considered to be on an item if it is within the distance defined by
+ `itemAtPointDistanceMax`.
+
+ Relevant to `HLGestureTarget` and `UIResponder` user interaction.
+ See "Common User Interaction Configurations".
+
+ Beware retain cycles when using the callback to invoke a method in the owner.  As a safer
+ alternative, use the item node's delegation interface; see `setDelegate:`.
+*/
+@property (nonatomic, copy) void (^itemClickedBlock)(int itemIndex);
+
+#endif
 
 /// @name Managing Geometry and Layout
 
@@ -317,18 +353,25 @@
 
 /**
  A delegate for `HLRingNode`.
-
- The delegate is (currently) concerned mostly with handling user interaction.  It's worth
- noting that the `HLRingNode` only receives gestures if it is configured as its own
- gesture target (using `[SKNode+HLGestureTarget hlSetGestureTarget]`).
 */
 @protocol HLRingNodeDelegate <NSObject>
 
 /// @name Handling User Interaction
 
+#if TARGET_OS_IPHONE
+
 /**
  Called when the user taps an item in the ring.
 */
 - (void)ringNode:(HLRingNode *)ringNode didTapItem:(int)itemIndex;
+
+#else
+
+/**
+ Called when the user clicks an item in the ring.
+*/
+- (void)ringNode:(HLRingNode *)ringNode didClickItem:(int)itemIndex;
+
+#endif
 
 @end

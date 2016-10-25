@@ -7,6 +7,7 @@
 //
 
 #import <SpriteKit/SpriteKit.h>
+#import <TargetConditionals.h>
 
 #import "HLComponentNode.h"
 #import "HLGestureTarget.h"
@@ -43,10 +44,22 @@ typedef NS_ENUM(NSInteger, HLMenuNodeAnimation) {
  item in the `HLMenu`, stacked vertically.  Menus are hierarchical in nature, and the
  node provides functionality for navigating between menus and submenus.
 
- ## Common Gesture Handling Configurations
+ ## Common User Interaction Configurations
 
- - Set this node as its own gesture target (via `[SKNode+HLGestureTarget
-   hlSetGestureTarget]`) to get a callbacks via the `HLMenuNodeDelegate` interface.
+ As a gesture target:
+
+ - Set this node as its own gesture target (using `[SKNode+HLGestureTarget
+   hlSetGestureTarget]`) to get callbacks through the `HLMenuNodeDelegate` interface.
+
+ As a `UIResponder`:
+
+ - Set this node's `userInteractionEnabled` property to true to get callbacks through the
+  `HLMenuNodeDelegate` interface.
+
+ As an `NSResponder`:
+
+ - Set this node's `userInteractionEnabled` property to true to get callbacks through the
+  `HLMenuNodeDelegate` interface.
 */
 @interface HLMenuNode : HLComponentNode <NSCoding, HLGestureTarget>
 
@@ -73,7 +86,7 @@ typedef NS_ENUM(NSInteger, HLMenuNodeAnimation) {
 
  For the sake of simplicity, menu node does not worry about updating its display when
  the caller makes changes to the individual menu items.  Instead, it will only refresh
- the display after a call to `setMenu:animation:`, `redisplayMenuAnimation:`, or from
+ the display after a call to `setTopMenu:animation:`, `redisplayMenuAnimation:`, or from
  manual or programmatic navigation of the menu.  The readonly attribute helps to suggest
  this pattern.  (The menu is retained, though, not copied, and so the caller is still
  able to change submenus and items within the menu.  Again, though, those changes will
@@ -85,7 +98,7 @@ typedef NS_ENUM(NSInteger, HLMenuNodeAnimation) {
       and submenus or parent menus are returned dynamically from delegate calls, should
       be considered if useful.
 */
-@property (nonatomic, readonly) HLMenu *menu;
+@property (nonatomic, readonly) HLMenu *topMenu;
 
 /**
  The submenu (of the `menu`) currently displayed by the menu node (readonly).
@@ -98,13 +111,13 @@ typedef NS_ENUM(NSInteger, HLMenuNodeAnimation) {
 /**
  Sets the hierarchical menu that the menu node will navigate.
 */
-- (void)setMenu:(HLMenu *)menu animation:(HLMenuNodeAnimation)animation;
+- (void)setTopMenu:(HLMenu *)topMenu animation:(HLMenuNodeAnimation)animation;
 
 /**
  Recreate display of current menu.
- 
+
  The HLMenuNode tracks a current HLMenu, but changes to that menu are not reflected in the
- display until an explicit call to `setMenu`, a navigation method, or a call to this method.
+ display until an explicit call to `setTopMenu`, a navigation method, or a call to this method.
 */
 - (void)redisplayMenuAnimation:(HLMenuNodeAnimation)animation;
 
@@ -112,7 +125,7 @@ typedef NS_ENUM(NSInteger, HLMenuNodeAnimation) {
 
 /**
  The vertical distance between the edges of adjacent buttons in the menu node.
- 
+
  Changes to this property won't take effect on the currently displayed menu until it
  is explicitly redisplayed (for example by navigation or `redisplayMenuAnimation:`).
 */
@@ -161,7 +174,7 @@ typedef NS_ENUM(NSInteger, HLMenuNodeAnimation) {
  All buttons in the menu hierarchy must have a button prototype, or an exception is
  raised at runtime.  Setting this property (`itemButtonPrototype`) is the easiest way to
  ensure prototypes for all items.
- 
+
  Changes to this property won't take effect on the currently displayed menu until it
  is explicitly redisplayed (for example by navigation or `redisplayMenuAnimation:`).
 */
@@ -190,20 +203,21 @@ typedef NS_ENUM(NSInteger, HLMenuNodeAnimation) {
 /**
  The animation used for navigation between menus.
 
- This animation applies when navigation is triggered by taps on submenu and back buttons.
+ This animation applies when navigation is triggered by taps or clicks on submenu and back
+ buttons.
 */
 @property (nonatomic, assign) HLMenuNodeAnimation itemAnimation;
 
 /**
  The duration of the animation used for navigation between menus.
 
- This animation duration applies when navigation is triggered by taps on submenu and back
- buttons.
+ This animation duration applies when navigation is triggered by taps or clicks on submenu
+ and back buttons.
 */
 @property (nonatomic, assign) NSTimeInterval itemAnimationDuration;
 
 /**
- Default sound file for playing when an item is tapped, or `nil` for none.
+ Default sound file for playing when an item is tapped or clicked, or `nil` for none.
 
  This sound file is used if no other more-specific sound file is specified.  In
  particular, a sound file for an item is found in the following order, from most-specific
@@ -235,10 +249,6 @@ typedef NS_ENUM(NSInteger, HLMenuNodeAnimation) {
 
 /**
  A delegate for `HLMenuNode`.
-
- The delegate is (currently) concerned mostly with handling user interaction.  It's
- worth noting that the `HLMenuNode` only receives gestures if it is configured as its
- own gesture target (using `[SKNode+HLGestureTarget hlSetGestureTarget]`).
 */
 @protocol HLMenuNodeDelegate <NSObject>
 
@@ -247,7 +257,7 @@ typedef NS_ENUM(NSInteger, HLMenuNodeAnimation) {
 /**
  Called immediately after a button is created for a menu item, but before the button is
  added to the node hierarchy and displayed.
- 
+
  This callback is optional, but provides an opportunity for the delegate to customize
  the appearance of a button right before display.
 */
@@ -255,6 +265,8 @@ typedef NS_ENUM(NSInteger, HLMenuNodeAnimation) {
 - (void)menuNode:(HLMenuNode *)menuNode willDisplayButton:(SKNode *)buttonNode forMenuItem:(HLMenuItem *)menuItem itemIndex:(NSUInteger)itemIndex;
 
 /// @name Handling User Interaction
+
+#if TARGET_OS_IPHONE
 
 /**
  Called when the user taps on a menu item, but before the menu node has taken any
@@ -264,6 +276,9 @@ typedef NS_ENUM(NSInteger, HLMenuNodeAnimation) {
 
  The sound file associated with the item will play **before** this delegate method is
  called.
+
+ Relevant to `HLGestureTarget` and `UIResponder` user interaction.
+ See "Common User Interaction Configurations".
 */
 @optional
 - (BOOL)menuNode:(HLMenuNode *)menuNode shouldTapMenuItem:(HLMenuItem *)menuItem itemIndex:(NSUInteger)itemIndex;
@@ -271,15 +286,59 @@ typedef NS_ENUM(NSInteger, HLMenuNodeAnimation) {
 /**
  Called when the user has tapped on a menu item and the menu node has taken any
  navigation actions that would normally result from the tap.
+
+ Relevant to `HLGestureTarget` and `UIResponder` user interaction.
+ See "Common User Interaction Configurations".
 */
 @required
 - (void)menuNode:(HLMenuNode *)menuNode didTapMenuItem:(HLMenuItem *)menuItem itemIndex:(NSUInteger)itemIndex;
 
 /**
  Called when the user has long-pressed on a menu item.
+
+ Relevant to `HLGestureTarget` and `UIResponder` user interaction.
+ See "Common User Interaction Configurations".
 */
 @optional
 - (void)menuNode:(HLMenuNode *)menuNode didLongPressMenuItem:(HLMenuItem *)menuItem itemIndex:(NSUInteger)itemIndex;
+
+#else
+
+/**
+ Called when the user clicks on a menu item, but before the menu node has taken any
+ navigation actions that would normally result from the click.
+
+ A return value of `YES` indicates the menu node should continue to navigation.
+
+ The sound file associated with the item will play **before** this delegate method is
+ called.
+
+ Relevant to `NSResponder` user interaction.
+ See "Common User Interaction Configurations".
+*/
+@optional
+- (BOOL)menuNode:(HLMenuNode *)menuNode shouldClickMenuItem:(HLMenuItem *)menuItem itemIndex:(NSUInteger)itemIndex;
+
+/**
+ Called when the user has clicked on a menu item and the menu node has taken any
+ navigation actions that would normally result from the click.
+
+ Relevant to `NSResponder` user interaction.
+ See "Common User Interaction Configurations".
+*/
+@required
+- (void)menuNode:(HLMenuNode *)menuNode didClickMenuItem:(HLMenuItem *)menuItem itemIndex:(NSUInteger)itemIndex;
+
+/**
+ Called when the user has long-clicked on a menu item.
+
+ Relevant to `NSResponder` user interaction.
+ See "Common User Interaction Configurations".
+ */
+@optional
+- (void)menuNode:(HLMenuNode *)menuNode didLongClickMenuItem:(HLMenuItem *)menuItem itemIndex:(NSUInteger)itemIndex;
+
+#endif
 
 @end
 
@@ -319,7 +378,7 @@ typedef NS_ENUM(NSInteger, HLMenuNodeAnimation) {
 @property (nonatomic, strong) SKNode *buttonPrototype;
 
 /**
- The sound file that will be played when this button is tapped, if not `nil`.
+ The sound file that will be played when this button is tapped or clicked, if not `nil`.
 
  See notes in `[HLMenuNode itemSoundFile]`.
 */
@@ -415,8 +474,8 @@ typedef NS_ENUM(NSInteger, HLMenuNodeAnimation) {
 @end
 
 /**
- An HLMenuBackItem is a kind of menu item which, when tapped, navigates the menu node to
- its parent menu.
+ An HLMenuBackItem is a kind of menu item which, when tapped or clicked, navigates the
+ menu node to its parent menu.
 */
 @interface HLMenuBackItem : HLMenuItem <NSCoding>
 

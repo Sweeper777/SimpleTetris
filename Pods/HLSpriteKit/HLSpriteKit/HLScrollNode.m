@@ -19,10 +19,14 @@ enum {
   CGPoint _contentOffsetOffline;
   CGFloat _contentScaleOffline;
 
-  CGPoint _panLastNodeLocation;
-  CGPoint _pinchPinContentLocation;
-  CGPoint _pinchPinNodeLocation;
-  CGFloat _pinchOriginalContentScale;
+  CGPoint _scrollLastNodeLocation;
+  CGPoint _zoomPinContentLocation;
+  CGPoint _zoomPinNodeLocation;
+  CGFloat _zoomOriginalContentScale;
+
+#if TARGET_OS_IPHONE
+  CGFloat _touchesOriginalNodeDistance;
+#endif
 }
 
 - (instancetype)init
@@ -39,7 +43,11 @@ enum {
     _contentSize = contentSize;
     _contentAnchorPoint = CGPointMake(0.5f, 0.5f);
     _contentOffsetOffline = CGPointZero;
+#if TARGET_OS_IPHONE
     _contentInset = UIEdgeInsetsZero;
+#else
+    _contentInset = NSEdgeInsetsZero;
+#endif
     _contentScaleOffline = 1.0f;
     _contentScaleMinimum = 1.0f;
     _contentScaleMinimumMode = HLScrollNodeContentScaleMinimumFitTight;
@@ -55,7 +63,11 @@ enum {
                  contentSize:(CGSize)contentSize
                  contentAnchorPoint:(CGPoint)contentAnchorPoint
                contentOffset:(CGPoint)contentOffset
+#if TARGET_OS_IPHONE
                 contentInset:(UIEdgeInsets)contentInset
+#else
+                contentInset:(NSEdgeInsets)contentInset
+#endif
                 contentScale:(CGFloat)contentScale
          contentScaleMinimum:(CGFloat)contentScaleMinimum
      contentScaleMinimumMode:(HLScrollNodeContentScaleMinimumMode)contentScaleMinimumMode
@@ -86,23 +98,33 @@ enum {
   if (self) {
 
     _contentNode = [aDecoder decodeObjectForKey:@"contentNode"];
+#if TARGET_OS_IPHONE
     _size = [aDecoder decodeCGSizeForKey:@"size"];
     _anchorPoint = [aDecoder decodeCGPointForKey:@"anchorPoint"];
     _contentSize = [aDecoder decodeCGSizeForKey:@"contentSize"];
     _contentAnchorPoint = [aDecoder decodeCGPointForKey:@"contentAnchorPoint"];
     _contentInset = [aDecoder decodeUIEdgeInsetsForKey:@"contentInset"];
+#else
+    _size = [aDecoder decodeSizeForKey:@"size"];
+    _anchorPoint = [aDecoder decodePointForKey:@"anchorPoint"];
+    _contentSize = [aDecoder decodeSizeForKey:@"contentSize"];
+    _contentAnchorPoint = [aDecoder decodePointForKey:@"contentAnchorPoint"];
+    _contentInset = NSEdgeInsetsMake((CGFloat)[aDecoder decodeDoubleForKey:@"contentInsetTop"],
+                                     (CGFloat)[aDecoder decodeDoubleForKey:@"contentInsetLeft"],
+                                     (CGFloat)[aDecoder decodeDoubleForKey:@"contentInsetBottom"],
+                                     (CGFloat)[aDecoder decodeDoubleForKey:@"contentInsetRight"]);
+#endif
     _contentScaleMinimum = (CGFloat)[aDecoder decodeDoubleForKey:@"contentScaleMinimum"];
     _contentScaleMinimumMode = [aDecoder decodeIntegerForKey:@"contentScaleMinimumMode"];
     _contentScaleMaximum = (CGFloat)[aDecoder decodeDoubleForKey:@"contentScaleMaximum"];
     _contentClipped = [aDecoder decodeBoolForKey:@"contentClipped"];
 
+#if TARGET_OS_IPHONE
     _contentOffsetOffline = [aDecoder decodeCGPointForKey:@"contentOffsetOffline"];
+#else
+    _contentOffsetOffline = [aDecoder decodePointForKey:@"contentOffsetOffline"];
+#endif
     _contentScaleOffline = (CGFloat)[aDecoder decodeDoubleForKey:@"contentScaleOffline"];
-
-    _panLastNodeLocation = [aDecoder decodeCGPointForKey:@"panLastNodeLocation"];
-    _pinchPinContentLocation = [aDecoder decodeCGPointForKey:@"pinchPinContentLocation"];
-    _pinchPinNodeLocation = [aDecoder decodeCGPointForKey:@"pinchPinNodeLocation"];
-    _pinchOriginalContentScale = (CGFloat)[aDecoder decodeDoubleForKey:@"pinchOriginalContentScale"];
   }
   return self;
 }
@@ -112,23 +134,33 @@ enum {
   [super encodeWithCoder:aCoder];
 
   [aCoder encodeObject:_contentNode forKey:@"contentNode"];
+#if TARGET_OS_IPHONE
   [aCoder encodeCGSize:_size forKey:@"size"];
   [aCoder encodeCGPoint:_anchorPoint forKey:@"anchorPoint"];
   [aCoder encodeCGSize:_contentSize forKey:@"contentSize"];
   [aCoder encodeCGPoint:_contentAnchorPoint forKey:@"contentAnchorPoint"];
   [aCoder encodeUIEdgeInsets:_contentInset forKey:@"contentInset"];
+#else
+  [aCoder encodeSize:_size forKey:@"size"];
+  [aCoder encodePoint:_anchorPoint forKey:@"anchorPoint"];
+  [aCoder encodeSize:_contentSize forKey:@"contentSize"];
+  [aCoder encodePoint:_contentAnchorPoint forKey:@"contentAnchorPoint"];
+  [aCoder encodeDouble:_contentInset.top forKey:@"contentInsetTop"];
+  [aCoder encodeDouble:_contentInset.left forKey:@"contentInsetLeft"];
+  [aCoder encodeDouble:_contentInset.bottom forKey:@"contentInsetBottom"];
+  [aCoder encodeDouble:_contentInset.right forKey:@"contentInsetRight"];
+#endif
   [aCoder encodeDouble:_contentScaleMinimum forKey:@"contentScaleMinimum"];
   [aCoder encodeInteger:_contentScaleMinimumMode forKey:@"contentScaleMinimumMode"];
   [aCoder encodeDouble:_contentScaleMaximum forKey:@"contentScaleMaximum"];
   [aCoder encodeBool:_contentClipped forKey:@"contentClipped"];
 
+#if TARGET_OS_IPHONE
   [aCoder encodeCGPoint:_contentOffsetOffline forKey:@"contentOffsetOffline"];
+#else
+  [aCoder encodePoint:_contentOffsetOffline forKey:@"contentOffsetOffline"];
+#endif
   [aCoder encodeDouble:_contentScaleOffline forKey:@"contentScaleOffline"];
-
-  [aCoder encodeCGPoint:_panLastNodeLocation forKey:@"panLastNodeLocation"];
-  [aCoder encodeCGPoint:_pinchPinContentLocation forKey:@"pinchPinContentLocation"];
-  [aCoder encodeCGPoint:_pinchPinNodeLocation forKey:@"pinchPinNodeLocation"];
-  [aCoder encodeDouble:_pinchOriginalContentScale forKey:@"pinchOriginalContentScale"];
 }
 
 - (instancetype)copyWithZone:(NSZone *)zone
@@ -307,7 +339,11 @@ enum {
   return [SKAction moveTo:constrainedPosition duration:duration];
 }
 
+#if TARGET_OS_IPHONE
 - (void)setContentInset:(UIEdgeInsets)contentInset
+#else
+- (void)setContentInset:(NSEdgeInsets)contentInset
+#endif
 {
   _contentInset = contentInset;
   if (!_contentNode) {
@@ -403,7 +439,7 @@ enum {
   _contentClipped = contentClipped;
   if (_contentClipped) {
     SKCropNode *cropNode = [SKCropNode node];
-    SKSpriteNode *maskNode = [SKSpriteNode spriteNodeWithColor:[SKColor blackColor] size:self.size];
+    SKSpriteNode *maskNode = [SKSpriteNode spriteNodeWithColor:[SKColor blackColor] size:_size];
     maskNode.anchorPoint = _anchorPoint;
     cropNode.maskNode = maskNode;
     [self addChild:cropNode];
@@ -654,85 +690,241 @@ enum {
 
 - (NSArray *)addsToGestureRecognizers
 {
+#if TARGET_OS_IPHONE
   return @[ [[UIPanGestureRecognizer alloc] init],
             [[UIPinchGestureRecognizer alloc] init] ];
+#else
+  return @[ [[NSPanGestureRecognizer alloc] init],
+            [[NSMagnificationGestureRecognizer alloc] init] ];
+#endif
 }
 
-- (BOOL)addToGesture:(UIGestureRecognizer *)gestureRecognizer firstTouch:(UITouch *)touch isInside:(BOOL *)isInside
+- (BOOL)addToGesture:(HLGestureRecognizer *)gestureRecognizer firstLocation:(CGPoint)sceneLocation isInside:(BOOL *)isInside
 {
+  // note: The content might extend beyond the boundaries of the scroll node.  If a gesture
+  // starts in this extended area, a gesture handler like HLScene might ask us if we'd like
+  // to be the target for the gesture.  Whether we're clipping content or not, it seems like
+  // the answer should be "no".
+  CGPoint locationInSelf = [self convertPoint:sceneLocation fromNode:self.scene];
+  if (locationInSelf.x < _size.width * -_anchorPoint.x
+      || locationInSelf.x > _size.width * (1.0f - _anchorPoint.x)
+      || locationInSelf.y < _size.height * -_anchorPoint.y
+      || locationInSelf.y > _size.height * (1.0f - _anchorPoint.y)) {
+    *isInside = NO;
+    return NO;
+  }
+
+#if TARGET_OS_IPHONE
   if (HLGestureTarget_areEquivalentGestureRecognizers(gestureRecognizer, [[UIPanGestureRecognizer alloc] init])) {
     [gestureRecognizer addTarget:self action:@selector(handlePan:)];
     *isInside = YES;
-    _panLastNodeLocation = [touch locationInNode:self];
+    [self HL_scrollStart:locationInSelf];
     return YES;
   } else if (HLGestureTarget_areEquivalentGestureRecognizers(gestureRecognizer, [[UIPinchGestureRecognizer alloc] init])) {
     [gestureRecognizer addTarget:self action:@selector(handlePinch:)];
     *isInside = YES;
     return YES;
   }
+#else
+  if (HLGestureTarget_areEquivalentGestureRecognizers(gestureRecognizer, [[NSPanGestureRecognizer alloc] init])) {
+    [gestureRecognizer addTarget:self action:@selector(handlePan:)];
+    *isInside = YES;
+    [self HL_scrollStart:locationInSelf];
+    return YES;
+  }
+  if (HLGestureTarget_areEquivalentGestureRecognizers(gestureRecognizer, [[NSMagnificationGestureRecognizer alloc] init])) {
+    [gestureRecognizer addTarget:self action:@selector(handlePinch:)];
+    *isInside = YES;
+    return YES;
+  }
+#endif
+
   *isInside = NO;
   return NO;
 }
 
-- (void)handlePan:(UIPanGestureRecognizer *)gestureRecognizer
+- (void)handlePan:(HLGestureRecognizer *)gestureRecognizer
 {
-  // noob: The pan doesn't begin until there is already movement from the original touch
-  // location.  I think translationInView accounts for this, but I like tracking my own
-  // translation so that the conversion from view to node coordinate systems is done by
-  // convertPointFromView and convertPoint:fromNode.  So remember the first touch location
-  // in addToGesture:firstTouch:isInside:, and start the pan from there.
-
   if (!_contentNode) {
     return;
   }
 
+#if TARGET_OS_IPHONE
   if (gestureRecognizer.state == UIGestureRecognizerStateEnded
       || gestureRecognizer.state == UIGestureRecognizerStateCancelled) {
     return;
   }
+#else
+  if (gestureRecognizer.state == NSGestureRecognizerStateEnded
+      || gestureRecognizer.state == NSGestureRecognizerStateCancelled) {
+    return;
+  }
+#endif
+
+  // note: The pan doesn't begin (UIGestureRecgonizerStateBegan) until there is already
+  // movement from the original touch location.  I think translationInView accounts for
+  // this, but I track my own translation (so that the conversion from view to node
+  // coordinate systems is done by convertPointFromView and convertPoint:fromNode).  So
+  // call HL_scrollStart from addToGesture:firstTouch:isInside:, starting the pan from
+  // there.  For UIGestureRecognizerStateBegan, we update it.
 
   CGPoint viewLocation = [gestureRecognizer locationInView:self.scene.view];
   CGPoint sceneLocation = [self.scene convertPointFromView:viewLocation];
   CGPoint nodeLocation = [self convertPoint:sceneLocation fromNode:self.scene];
-  CGPoint translationInNode = CGPointMake(nodeLocation.x - _panLastNodeLocation.x,
-                                          nodeLocation.y - _panLastNodeLocation.y);
-  _contentNode.position = [self HL_contentConstrainedPositionX:(_contentNode.position.x + translationInNode.x)
-                                                     positionY:(_contentNode.position.y + translationInNode.y)
-                                                         scale:_contentNode.xScale];
-  _panLastNodeLocation = nodeLocation;
+  [self HL_scrollUpdate:nodeLocation];
 }
 
-- (void)handlePinch:(UIPinchGestureRecognizer *)gestureRecognizer
+- (void)handlePinch:(HLGestureRecognizer *)gestureRecognizer
 {
   if (!_contentNode) {
     return;
   }
 
-  if (gestureRecognizer.state == UIGestureRecognizerStateBegan) {
+#if TARGET_OS_IPHONE
 
-    // note: The idea is that we pin the HLScrollNode and content together at a point (the
-    // center point of the gesture as it starts), and they will remained pinned together at
-    // that point throughout the gesture (if possible).
+  if (gestureRecognizer.state == UIGestureRecognizerStateBegan) {
     CGPoint viewLocation = [gestureRecognizer locationInView:self.scene.view];
     CGPoint sceneLocation = [self.scene convertPointFromView:viewLocation];
-    _pinchPinNodeLocation = [self convertPoint:sceneLocation fromNode:self.scene];
-    CGPoint contentPosition = _contentNode.position;
-    _pinchOriginalContentScale = _contentNode.xScale;
-    _pinchPinContentLocation = CGPointMake((_pinchPinNodeLocation.x - contentPosition.x) / _pinchOriginalContentScale,
-                                           (_pinchPinNodeLocation.y - contentPosition.y) / _pinchOriginalContentScale);
-
+    CGPoint nodeLocation = [self convertPoint:sceneLocation fromNode:self.scene];
+    [self HL_zoomStart:nodeLocation];
   } else if (gestureRecognizer.state == UIGestureRecognizerStateChanged) {
-
-    CGFloat constrainedScale = [self HL_contentConstrainedScale:(gestureRecognizer.scale * _pinchOriginalContentScale)];
-    _contentNode.xScale = constrainedScale;
-    _contentNode.yScale = constrainedScale;
-    _contentNode.position = [self HL_contentConstrainedPositionX:(_pinchPinNodeLocation.x - _pinchPinContentLocation.x * constrainedScale)
-                                                       positionY:(_pinchPinNodeLocation.y - _pinchPinContentLocation.y * constrainedScale)
-                                                           scale:constrainedScale];
-
+    CGFloat scale = ((UIPinchGestureRecognizer *)gestureRecognizer).scale;
+    [self HL_zoomUpdate:scale];
   }
 
+#else
+
+  if (gestureRecognizer.state == NSGestureRecognizerStateBegan) {
+    CGPoint viewLocation = [gestureRecognizer locationInView:self.scene.view];
+    CGPoint sceneLocation = [self.scene convertPointFromView:viewLocation];
+    CGPoint nodeLocation = [self convertPoint:sceneLocation fromNode:self.scene];
+    [self HL_zoomStart:nodeLocation];
+  } else if (gestureRecognizer.state == NSGestureRecognizerStateChanged) {
+    CGFloat scale = 1.0f + ((NSMagnificationGestureRecognizer *)gestureRecognizer).magnification;
+    [self HL_zoomUpdate:scale];
+  }
+
+#endif
 }
+
+#if TARGET_OS_IPHONE
+
+#pragma mark -
+#pragma mark UIResponder
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+  [self HL_touchesBeganOrEndedWithEvent:event];
+}
+
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
+{
+  NSSet *allTouches = [event allTouches];
+  NSUInteger allTouchesCount = [allTouches count];
+
+  if (allTouchesCount == 1) {
+
+    UITouch *touch = [touches anyObject];
+    CGPoint viewLocation = [touch locationInView:self.scene.view];
+    CGPoint sceneLocation = [self.scene convertPointFromView:viewLocation];
+    CGPoint nodeLocation = [self convertPoint:sceneLocation fromNode:self.scene];
+    [self HL_scrollUpdate:nodeLocation];
+
+  } else if (allTouchesCount == 2) {
+
+    NSArray *allTouchesArray = [allTouches allObjects];
+
+    UITouch *touch0 = allTouchesArray[0];
+    CGPoint viewLocation0 = [touch0 locationInView:self.scene.view];
+    CGPoint sceneLocation0 = [self.scene convertPointFromView:viewLocation0];
+    CGPoint nodeLocation0 = [self convertPoint:sceneLocation0 fromNode:self.scene];
+
+    UITouch *touch1 = allTouchesArray[1];
+    CGPoint viewLocation1 = [touch1 locationInView:self.scene.view];
+    CGPoint sceneLocation1 = [self.scene convertPointFromView:viewLocation1];
+    CGPoint nodeLocation1 = [self convertPoint:sceneLocation1 fromNode:self.scene];
+
+    CGFloat touchesNodeDistance = (CGFloat)sqrt((nodeLocation0.x - nodeLocation1.x) * (nodeLocation0.x - nodeLocation1.x)
+                                                + (nodeLocation0.y - nodeLocation1.y) * (nodeLocation0.y - nodeLocation1.y));
+    CGFloat scale = touchesNodeDistance / _touchesOriginalNodeDistance;
+
+    [self HL_zoomUpdate:scale];
+  }
+}
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{
+  [self HL_touchesBeganOrEndedWithEvent:event];
+}
+
+- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
+{
+  [self HL_touchesBeganOrEndedWithEvent:event];
+}
+
+- (void)HL_touchesBeganOrEndedWithEvent:(UIEvent *)event
+{
+  // note: When there is one touch, we're scrolling; two touches, we're zooming.
+  // When the number of touches change (whether increase or decrease), our action
+  // needs to reset itself based on current location.
+
+  NSSet *allTouches = [event allTouches];
+  NSUInteger allTouchesCount = [allTouches count];
+
+  if (allTouchesCount == 1) {
+
+    UITouch *touch = [allTouches anyObject];
+    CGPoint viewLocation = [touch locationInView:self.scene.view];
+    CGPoint sceneLocation = [self.scene convertPointFromView:viewLocation];
+    CGPoint nodeLocation = [self convertPoint:sceneLocation fromNode:self.scene];
+    [self HL_scrollStart:nodeLocation];
+
+  } else if (allTouchesCount == 2) {
+
+    NSArray *allTouchesArray = [allTouches allObjects];
+
+    UITouch *touch0 = allTouchesArray[0];
+    CGPoint viewLocation0 = [touch0 locationInView:self.scene.view];
+    CGPoint sceneLocation0 = [self.scene convertPointFromView:viewLocation0];
+    CGPoint nodeLocation0 = [self convertPoint:sceneLocation0 fromNode:self.scene];
+
+    UITouch *touch1 = allTouchesArray[1];
+    CGPoint viewLocation1 = [touch1 locationInView:self.scene.view];
+    CGPoint sceneLocation1 = [self.scene convertPointFromView:viewLocation1];
+    CGPoint nodeLocation1 = [self convertPoint:sceneLocation1 fromNode:self.scene];
+
+    _touchesOriginalNodeDistance = (CGFloat)sqrt((nodeLocation0.x - nodeLocation1.x) * (nodeLocation0.x - nodeLocation1.x)
+                                                 + (nodeLocation0.y - nodeLocation1.y) * (nodeLocation0.y - nodeLocation1.y));
+
+    CGPoint centerNodeLocation;
+    centerNodeLocation.x = (nodeLocation0.x + nodeLocation1.x) / 2.0f;
+    centerNodeLocation.y = (nodeLocation0.y + nodeLocation1.y) / 2.0f;
+
+    [self HL_zoomStart:centerNodeLocation];
+  }
+}
+
+#else
+
+#pragma mark -
+#pragma mark NSResponder
+
+- (void)mouseDown:(NSEvent *)event
+{
+  CGPoint nodeLocation = [event locationInNode:self];
+  [self HL_scrollStart:nodeLocation];
+}
+
+- (void)mouseDragged:(NSEvent *)event
+{
+  if (!_contentNode) {
+    return;
+  }
+  CGPoint nodeLocation = [event locationInNode:self];
+  [self HL_scrollUpdate:nodeLocation];
+}
+
+#endif
 
 #pragma mark -
 #pragma mark Private
@@ -799,6 +991,43 @@ enum {
   }
 
   return scale;
+}
+
+- (void)HL_scrollStart:(CGPoint)nodeLocation
+{
+  _scrollLastNodeLocation = nodeLocation;
+}
+
+- (void)HL_scrollUpdate:(CGPoint)nodeLocation
+{
+  CGPoint translationInNode = CGPointMake(nodeLocation.x - _scrollLastNodeLocation.x,
+                                          nodeLocation.y - _scrollLastNodeLocation.y);
+  _contentNode.position = [self HL_contentConstrainedPositionX:(_contentNode.position.x + translationInNode.x)
+                                                     positionY:(_contentNode.position.y + translationInNode.y)
+                                                         scale:_contentNode.xScale];
+  _scrollLastNodeLocation = nodeLocation;
+}
+
+- (void)HL_zoomStart:(CGPoint)centerNodeLocation
+{
+  // note: The idea is that we pin the HLScrollNode and content together at a point (call it
+  // the center point of the gesture or event as it starts), and they will remained pinned
+  // together at that point throughout the gesture or event (if possible).
+  _zoomPinNodeLocation = centerNodeLocation;
+  CGPoint contentPosition = _contentNode.position;
+  _zoomOriginalContentScale = _contentNode.xScale;
+  _zoomPinContentLocation = CGPointMake((_zoomPinNodeLocation.x - contentPosition.x) / _zoomOriginalContentScale,
+                                         (_zoomPinNodeLocation.y - contentPosition.y) / _zoomOriginalContentScale);
+}
+
+- (void)HL_zoomUpdate:(CGFloat)scale
+{
+  CGFloat constrainedScale = [self HL_contentConstrainedScale:(scale * _zoomOriginalContentScale)];
+  _contentNode.xScale = constrainedScale;
+  _contentNode.yScale = constrainedScale;
+  _contentNode.position = [self HL_contentConstrainedPositionX:(_zoomPinNodeLocation.x - _zoomPinContentLocation.x * constrainedScale)
+                                                     positionY:(_zoomPinNodeLocation.y - _zoomPinContentLocation.y * constrainedScale)
+                                                         scale:constrainedScale];
 }
 
 @end

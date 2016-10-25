@@ -5,7 +5,7 @@ target 'SimpleTetris' do
   # Comment this line if you're not using Swift and don't want to use dynamic frameworks
   use_frameworks!
 
-  pod 'HLSpriteKit'
+  pod 'HLSpriteKit', :git => 'https://github.com/hilogames/HLSpriteKit.git'
   pod 'EZSwiftExtensions'
 
 end

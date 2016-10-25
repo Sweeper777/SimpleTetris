@@ -6,6 +6,10 @@
 //  Copyright (c) 2013 Hilo Games. All rights reserved.
 //
 
+#import <TargetConditionals.h>
+
+#if TARGET_OS_IPHONE
+
 #import <UIKit/UIKit.h>
 
 @interface UIImage (HLImageAdditions)
@@ -72,3 +76,5 @@
                                     cutout:(BOOL)cutout;
 
 @end
+
+#endif

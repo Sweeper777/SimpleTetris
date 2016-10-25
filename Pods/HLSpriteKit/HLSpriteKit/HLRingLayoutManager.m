@@ -8,6 +8,8 @@
 
 #import "HLRingLayoutManager.h"
 
+#import <TargetConditionals.h>
+
 const CGFloat HLRingLayoutManagerEpsilon = 0.001f;
 
 typedef NS_ENUM(NSInteger, HLRingLayoutManagerThetasMode) {
@@ -38,7 +40,11 @@ typedef NS_ENUM(NSInteger, HLRingLayoutManagerThetasMode) {
 {
   self = [super init];
   if (self) {
+#if TARGET_OS_IPHONE
     _ringOffset = [aDecoder decodeCGPointForKey:@"ringOffset"];
+#else
+    _ringOffset = [aDecoder decodePointForKey:@"ringOffset"];
+#endif
     _radii = [aDecoder decodeObjectForKey:@"radii"];
     _thetasMode = [aDecoder decodeIntegerForKey:@"thetasMode"];
     switch (_thetasMode) {
@@ -61,7 +67,11 @@ typedef NS_ENUM(NSInteger, HLRingLayoutManagerThetasMode) {
 
 - (void)encodeWithCoder:(NSCoder *)aCoder
 {
+#if TARGET_OS_IPHONE
   [aCoder encodeCGPoint:_ringOffset forKey:@"ringOffset"];
+#else
+  [aCoder encodePoint:_ringOffset forKey:@"ringOffset"];
+#endif
   [aCoder encodeObject:_radii forKey:@"radii"];
   [aCoder encodeInteger:_thetasMode forKey:@"thetasMode"];
   switch (_thetasMode) {

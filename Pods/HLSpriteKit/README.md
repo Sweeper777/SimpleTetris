@@ -2,6 +2,7 @@
 
 [![CI Status](http://img.shields.io/travis/hilogames/HLSpriteKit.svg?style=flat)](https://travis-ci.org/hilogames/HLSpriteKit)
 [![Version](https://img.shields.io/cocoapods/v/HLSpriteKit.svg?style=flat)](http://cocoadocs.org/docsets/HLSpriteKit)
+[![carthage compatible](https://img.shields.io/badge/carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![License](https://img.shields.io/cocoapods/l/HLSpriteKit.svg?style=flat)](http://cocoadocs.org/docsets/HLSpriteKit)
 [![Platform](https://img.shields.io/cocoapods/p/HLSpriteKit.svg?style=flat)](http://cocoadocs.org/docsets/HLSpriteKit)
 
@@ -11,21 +12,22 @@ SpriteKit scene and node subclasses, plus various utilities.
 
 ### HLGestureTarget
 
-A gesture target handles gestures from `UIGestureRecognizer`s. It can
-be attached to any `SKNode` using the class category
+A gesture target handles gestures from gesture recognizers (either
+`UIGestureRecognizer` under iOS or `NSGestureRecognizer` under
+macOS). It can be attached to any `SKNode` using the class category
 `SKNode+HLGestureTarget`.
 
 The use pattern is this: The `SKScene` knows about its view, and so
-the scene is the `UIGestureRecognizerDelegate`. It manages a
-collection of shared gesture recognizers, which it attaches to and
-detaches from its view as appropriate. When a certain gesture is
-recognized by a gesture recognizer, the scene figures out which node
-or nodes are the target of the gesture, and it forwards the gestures
-to those nodes using the `HLGestureTarget` interface.
+the scene is the gesture recognizer delegate. It manages a collection
+of shared gesture recognizers, which it attaches to and detaches from
+its view as appropriate. When a certain gesture is recognized by a
+gesture recognizer, the scene figures out which node or nodes are the
+target of the gesture, and it forwards the gestures to those nodes
+using the `HLGestureTarget` interface.
 
-Here’s the point: The scene can effectively use `UIGestureRecognizer`s
-rather than the `UIResponder` interface (`touchesBegan:withEvent:` and
-the rest), and the gesture handling code can be encapsulated within
+Here’s the point: The scene can effectively use gesture recognizers
+(rather than responder interface `touchesBegan:withEvent:` or
+`mouseUp:`), and the gesture handling code can be encapsulated within
 node subclasses (rather than dumped into a bloated scene).
 
 ### HLLayoutManager
@@ -37,6 +39,8 @@ nodes. It can be attached to any `SKNode` using the class category
 Layout managers currently provided:
 
  * `HLTableLayoutManager`, for table-like layouts;
+
+ * `HLGridLayoutManager`, for grid-like layouts;
 
  * `HLRingLayoutManager`, for ring-like polar-coordinate layouts;
 
@@ -68,6 +72,9 @@ layout math.
 
  * `HLMessageNode`. Shows a text message over a solid or textured
    background, with some animation options.
+
+ * `HLMultilineLabelNode`. A label node that can display multiline
+   text.
 
  * `HLRingNode`. A collection of items (usually buttons) arranged in a
    circle around a center point.
@@ -116,7 +123,7 @@ code blocks.
 
 ## Gesture Recognition FAQ and Examples
 
-### I want to use `UIGestureRecognizer` in my scene to recognize gestures.
+### I want to use `UIGestureRecognizer` or `NSGestureRecognizer` in my scene to recognize gestures.
 
 Here is the pattern used in `HLSpriteKit`:
 
@@ -125,13 +132,12 @@ Here is the pattern used in `HLSpriteKit`:
    recognizers to the view.
 
  * Your scene is the delegate of the gesture recognizers; that is, the
-   `UIGestureRecognizerDelegate`.
+   `UIGestureRecognizerDelegate` or `NSGestureRecognizerDelegate`.
 
- * Right before a gesture recognizer starts recognizing, in
-   `gestureRecognizer:shouldReceiveTouch:`, your scene sets the
-   gesture recognizer’s target (object and selector) to the most
-   relevant receiver node. As the gesture is recognized, that node
-   will get the calls.
+ * Right before a gesture recognizer starts recognizing, your scene
+   sets the gesture recognizer’s target (object and selector) to the
+   most relevant receiver node. As the gesture is recognized, that
+   node will get the calls.
 
 Consider some alternate designs. In particular, say your scene
 contains a number of button nodes that should respond to tap
@@ -151,7 +157,7 @@ used in `HLSpriteKit`:
    each target would decide whether it was being tapped, and execute
    appropriate code if so.
 
-### I want to use `UIGestureRecognizer` in my scene the `HLSpriteKit` way.
+### I want to use gesture recognizers in my scene the `HLSpriteKit` way.
 
 Create your scene as a subclass of `HLScene`.
 
@@ -176,18 +182,18 @@ toolbarNode.delegate = self;
 [self addChild:toolbarNode];
 ```
 
-Finally, set the toolbar’s gesture target to itself, and register it
-with the scene as a gesture target:
+Finally, set the toolbar’s gesture target to itself, and notify the
+scene that it needs to create some appropriate gesture recognizers:
 
 ```obj-c
 [toolbarNode hlSetGestureTarget:toolbarNode];
-[self registerDescendant:toolbarNode withOptions:[NSSet setWithObject:HLSceneChildGestureTarget]];
+[self needsSharedGestureRecognizersForNode:toolbarNode];
 ```
 
-This will give you delegate callbacks for taps on toolbar tools.
+This will give you delegate callbacks for taps or clicks on toolbar tools.
 
 See the Example project (`HLSpriteKit/Example/HLSpriteKit/HLCatalogScene.m` in project or
-[on GitHub](https://github.com/hilogames/HLSpriteKit/blob/master/Example/HLSpriteKit/HLCatalogScene.m))
+[on GitHub](https://github.com/hilogames/HLSpriteKit/blob/master/Example/Shared/HLCatalogScene.m))
 for a working example of a scene using multiple gesture targets.
 
 ### I want to make my own gesture-target nodes in my scene.
@@ -209,7 +215,7 @@ Here are your options:
 Follow the pattern of components in `HLSpriteKit`, and conform to the
 `HLGestureTarget` protocol in your custom node class. Through the
 `HLGestureTarget` interface, your node will tell its scene what
-`UIGestureRecognizer`s it expects, and what to do when those gesture
+gesture recognizers it expects, and what to do when those gesture
 recognizers trigger.
 
 You can then include your node in your scene the same way you included
@@ -245,18 +251,7 @@ tapGestureTarget.handleGestureBlock = ^(UIGestureRecognizer *gestureRecognizer){
   // wiggle red square node
 };
 [redSquareNode hlSetGestureTarget:tapGestureTarget];
-[self registerDescendant:redSquareNode withOptions:[NSSet setWithObject:HLSceneChildGestureTarget]];
-```
-
-If you're into the whole brevity thing, you can combine some of the
-lines:
-
-```obj-c
-SKSpriteNode *redSquareNode = [SKSpriteNode spriteNodeWithColor:[SKColor redColor] size:CGSizeMake(20.0f, 20.0f)];
-[redSquareNode hlSetGestureTarget:[HLTapGestureTarget tapGestureTargetWithHandleGestureBlock:^(UIGestureRecognizer *gestureRecognizer){
-  // wiggle red square node
-}]];
-[self addChild:redSquareNode withOptions:[NSSet setWithObject:HLSceneChildGestureTarget]];
+[self needsSharedGestureRecognizersForNode:redSquareNode];
 ```
 
 The `HLTapGestureTarget` is a simple implementation of a gesture
@@ -273,10 +268,11 @@ labelButtonNode.automaticHeight = YES;
 labelButtonNode.text = @"Tap to dismiss";
 [self addChild:labelButtonNode];
 
+__weak HLLabelButtonNode *labelButtonNodeWeak = labelButtonNode;
 [labelButtonNode hlSetGestureTarget:[HLTapGestureTarget tapGestureTargetWithHandleGestureBlock:^(UIGestureRecognizer *gestureRecognizer){
-  [labelButtonNode removeFromParent];
+  [labelButtonNodeWeak removeFromParent];
 }]];
-[self registerDescendant:labelButtonNode withOptions:[NSSet setWithObject:HLSceneChildGestureTarget]];
+[self needsSharedGestureRecognizersForNode:labelButtonNode];
 ```
 
 `HLLabelButtonNode` doesn't even implement its own gesture target,
@@ -305,7 +301,7 @@ toolbarNode.delegate = self;
 HLToolbarNodeMultiGestureTarget *multiGestureTarget = [[HLToolbarNodeMultiGestureTarget alloc] initWithToolbarNode:toolbarNode];
 multiGestureTarget.delegate = self;
 [toolbarNode hlSetGestureTarget:multiGestureTarget];
-[self registerDescendant:toolbarNode withOptions:[NSSet setWithObject:HLSceneChildGestureTarget]];
+[self needsSharedGestureRecognizersForNode:toolbarNode];
 ```
 
 You can use the `HLToolbarNodeMultiGestureTarget` class as a pattern
@@ -377,26 +373,27 @@ is cleared and a new one set.
 `HLGestureTarget` is lightweight, and optional, and should not
 introduce overhead for the `HLSpriteKit` components.
 
-That said, I haven't bothered to write `UIResponder` implementations
-for the components yet, or even good public interfaces for controlling
-the interaction externally.
-
-I would be happy to do so, or to accept pull requests for such
-implementations. Let me know what you need!
+I have written very simple `UIResponder` and `NSResponder` user
+interaction implemenations for some of the components, as a
+proof-of-concept, but I haven't used them much myself. I would be
+happy to work on these more, or accept pull requests. Let me know what
+you need!
 
 ## Development
 
 `HLSpriteKit` is under active development, and so includes other
 experimental classes and functions which seem general enough for
-reuse. For instance, a generic `SKTexture` store and `SKEmitterNode`
-store are included, but it’s not clear they are useful.
+reuse. For instance, an `SKEmitterNode` store and some image
+manipulation functions are included, but it’s not clear they are
+useful.
 
 ## Installation
 
-`HLSpriteKit` is available through [CocoaPods](http://cocoapods.org).
-To install it, simply add the following line to your Podfile:
+    # CocoaPods
+    pod "HLSpriteKit", "~> 1.0"
 
-    pod 'HLSpriteKit'
+    # Carthage
+	github "hilogames/HLSpriteKit" ~> 1.0
 
 ## Author
 

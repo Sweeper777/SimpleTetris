@@ -94,14 +94,18 @@ enum {
     _delegate = [aDecoder decodeObjectForKey:@"delegate"];
 
     // note: Cannot decode squareTappedBlock.  Assume it will be reset on decode.
-    
+
     _backgroundNode = [aDecoder decodeObjectForKey:@"backgroundNode"];
     _squaresNode = [aDecoder decodeObjectForKey:@"squaresNode"];
 
     _gridWidth = [aDecoder decodeIntForKey:@"gridWidth"];
     _squareCount = [aDecoder decodeIntForKey:@"squareCount"];
     _layoutMode = [aDecoder decodeIntegerForKey:@"layoutMode"];
+#if TARGET_OS_IPHONE
     _squareSize = [aDecoder decodeCGSizeForKey:@"squareSize"];
+#else
+    _squareSize = [aDecoder decodeSizeForKey:@"squareSize"];
+#endif
     _backgroundBorderSize = (CGFloat)[aDecoder decodeDoubleForKey:@"backgroundBorderSize"];
     _squareSeparatorSize = (CGFloat)[aDecoder decodeDoubleForKey:@"squareSeparatorSize"];
 
@@ -116,7 +120,7 @@ enum {
 - (void)encodeWithCoder:(NSCoder *)aCoder
 {
   [super encodeWithCoder:aCoder];
-  
+
   [aCoder encodeConditionalObject:_delegate forKey:@"delegate"];
 
   // note: Cannot encode squareTappedBlock.  Assume it will be reset on decode.
@@ -127,10 +131,14 @@ enum {
   [aCoder encodeInt:_gridWidth forKey:@"gridWidth"];
   [aCoder encodeInt:_squareCount forKey:@"squareCount"];
   [aCoder encodeInteger:_layoutMode forKey:@"layoutMode"];
+#if TARGET_OS_IPHONE
   [aCoder encodeCGSize:_squareSize forKey:@"squareSize"];
+#else
+  [aCoder encodeSize:_squareSize forKey:@"squareSize"];
+#endif
   [aCoder encodeDouble:_backgroundBorderSize forKey:@"backgroundBorderSize"];
   [aCoder encodeDouble:_squareSeparatorSize forKey:@"squareSeparatorSize"];
-  
+
   [aCoder encodeObject:_squareColor forKey:@"squareColor"];
   [aCoder encodeObject:_highlightColor forKey:@"highlightColor"];
   [aCoder encodeDouble:_enabledAlpha forKey:@"enabledAlpha"];
@@ -394,22 +402,35 @@ enum {
 
 - (NSArray *)addsToGestureRecognizers
 {
+#if TARGET_OS_IPHONE
   return @[ [[UITapGestureRecognizer alloc] init] ];
+#else
+  return @[ [[NSClickGestureRecognizer alloc] init] ];
+#endif
 }
 
-- (BOOL)addToGesture:(UIGestureRecognizer *)gestureRecognizer firstTouch:(UITouch *)touch isInside:(BOOL *)isInside
+- (BOOL)addToGesture:(HLGestureRecognizer *)gestureRecognizer firstLocation:(CGPoint)sceneLocation isInside:(BOOL *)isInside
 {
   *isInside = YES;
+#if TARGET_OS_IPHONE
   if ([gestureRecognizer isKindOfClass:[UITapGestureRecognizer class]]) {
     // note: Require only one tap and one touch, same as our gesture recognizer returned
     // from addsToGestureRecognizers?  I think it's okay to be non-strict.
     [gestureRecognizer addTarget:self action:@selector(handleTap:)];
     return YES;
   }
+#else
+  if ([gestureRecognizer isKindOfClass:[NSClickGestureRecognizer class]]) {
+    [gestureRecognizer addTarget:self action:@selector(handleClick:)];
+    return YES;
+  }
+#endif
   return NO;
 }
 
-- (void)handleTap:(UIGestureRecognizer *)gestureRecognizer
+#if TARGET_OS_IPHONE
+
+- (void)handleTap:(HLGestureRecognizer *)gestureRecognizer
 {
   CGPoint viewLocation = [gestureRecognizer locationInView:self.scene.view];
   CGPoint sceneLocation = [self.scene convertPointFromView:viewLocation];
@@ -429,6 +450,96 @@ enum {
     [delegate gridNode:self didTapSquare:squareIndex];
   }
 }
+
+#else
+
+- (void)handleClick:(HLGestureRecognizer *)gestureRecognizer
+{
+  CGPoint viewLocation = [gestureRecognizer locationInView:self.scene.view];
+  CGPoint sceneLocation = [self.scene convertPointFromView:viewLocation];
+  CGPoint location = [self convertPoint:sceneLocation fromNode:self.scene];
+
+  int squareIndex = [self squareAtPoint:location];
+  if (squareIndex < 0) {
+    return;
+  }
+
+  if (_squareClickedBlock) {
+    _squareClickedBlock(squareIndex);
+  }
+
+  id <HLGridNodeDelegate> delegate = _delegate;
+  if (delegate) {
+    [delegate gridNode:self didClickSquare:squareIndex];
+  }
+}
+
+#endif
+
+#if TARGET_OS_IPHONE
+
+#pragma mark -
+#pragma mark UIResponder
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{
+  if ([touches count] > 1) {
+    return;
+  }
+
+  UITouch *touch = [touches anyObject];
+  if (touch.tapCount > 1) {
+    return;
+  }
+
+  CGPoint viewLocation = [touch locationInView:self.scene.view];
+  CGPoint sceneLocation = [self.scene convertPointFromView:viewLocation];
+  CGPoint location = [self convertPoint:sceneLocation fromNode:self.scene];
+
+  int squareIndex = [self squareAtPoint:location];
+  if (squareIndex < 0) {
+    return;
+  }
+
+  if (_squareTappedBlock) {
+    _squareTappedBlock(squareIndex);
+  }
+
+  id <HLGridNodeDelegate> delegate = _delegate;
+  if (delegate) {
+    [delegate gridNode:self didTapSquare:squareIndex];
+  }
+}
+
+#else
+
+#pragma mark -
+#pragma mark NSResponder
+
+- (void)mouseUp:(NSEvent *)event
+{
+  if (event.clickCount > 1) {
+    return;
+  }
+
+  CGPoint location = [event locationInNode:self];
+
+  int squareIndex = [self squareAtPoint:location];
+  if (squareIndex < 0) {
+    return;
+  }
+
+  if (_squareClickedBlock) {
+    _squareClickedBlock(squareIndex);
+  }
+
+  id <HLGridNodeDelegate> delegate = _delegate;
+  if (delegate) {
+    [delegate gridNode:self didClickSquare:squareIndex];
+  }
+}
+
+#endif
 
 #pragma mark -
 #pragma mark Private
