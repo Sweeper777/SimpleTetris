@@ -47,7 +47,7 @@ class GameScene: SKScene {
                 break
             } else if self.nodes(at: location).contains(gestureCheckbox) {
                 let gestureEnabled = UserDefaults.standard.bool(forKey: "gestures")
-                let animation = SKAction.setTexture(SKTexture(imageNamed: gestureEnabled ? "gestureChecked" : "gestureUnchecked"))
+                let animation = SKAction.setTexture(SKTexture(imageNamed: !gestureEnabled ? "gestureChecked" : "gestureUnchecked"))
                 gestureCheckbox.run(animation)
                 UserDefaults.standard.set(!gestureEnabled, forKey: "gestures")
             }
