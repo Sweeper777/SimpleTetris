@@ -3,6 +3,7 @@ import GameplayKit
 
 class GameScene: SKScene {
     var startButton: SKSpriteNode!
+    var gestureCheckbox: SKSpriteNode!
     
     override func didMove(to view: SKView) {
         self.view?.ignoresSiblingOrder = true
@@ -19,6 +20,11 @@ class GameScene: SKScene {
         
         startButton = background.childNode(withName: "startButton") as! SKSpriteNode
         startButton.zPosition = 1000
+        
+        gestureCheckbox = background.childNode(withName: "gestureCheckbox") as! SKSpriteNode
+        gestureCheckbox.zPosition = 1000
+        let gestureEnabled = UserDefaults.standard.bool(forKey: "gestures")
+        gestureCheckbox.texture = SKTexture(imageNamed: gestureEnabled ? "gestureChecked" : "gestureUnchecked")
         
         let bestScoreLabel = background.childNode(withName: "bestScoreBg")!.childNode(withName: "bestScoreLabel") as! SKLabelNode
         bestScoreLabel.text = String(UserDefaults.standard.integer(forKey: "bestScore"))
@@ -39,6 +45,11 @@ class GameScene: SKScene {
                     self.view!.presentScene(tetrisScene!, transition: transition)
                     }]))
                 break
+            } else if self.nodes(at: location).contains(gestureCheckbox) {
+                let gestureEnabled = UserDefaults.standard.bool(forKey: "gestures")
+                let animation = SKAction.setTexture(SKTexture(imageNamed: gestureEnabled ? "gestureChecked" : "gestureUnchecked"))
+                gestureCheckbox.run(animation)
+                UserDefaults.standard.set(!gestureEnabled, forKey: "gestures")
             }
         }
     }
