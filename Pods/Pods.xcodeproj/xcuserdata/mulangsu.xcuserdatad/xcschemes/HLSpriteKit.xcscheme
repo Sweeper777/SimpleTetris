@@ -14,7 +14,7 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = 'primary'
-               BlueprintIdentifier = '8E13EF1F31F07CD75ABEEE3DB4F4387E'
+               BlueprintIdentifier = '1421E63D723A18F543E94AD7942C3CF1'
                BlueprintName = 'HLSpriteKit'
                ReferencedContainer = 'container:Pods.xcodeproj'
                BuildableName = 'HLSpriteKit.framework'>

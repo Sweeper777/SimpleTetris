@@ -1,15 +1,24 @@
 PODS:
   - EZSwiftExtensions (1.7)
-  - HLSpriteKit (1.0.0)
+  - HLSpriteKit (1.3.0)
 
 DEPENDENCIES:
   - EZSwiftExtensions
-  - HLSpriteKit
+  - HLSpriteKit (from `https://github.com/hilogames/HLSpriteKit.git`)
+
+EXTERNAL SOURCES:
+  HLSpriteKit:
+    :git: https://github.com/hilogames/HLSpriteKit.git
+
+CHECKOUT OPTIONS:
+  HLSpriteKit:
+    :commit: 33c42adec6c5f6f8596891a55043341fdcbc88f4
+    :git: https://github.com/hilogames/HLSpriteKit.git
 
 SPEC CHECKSUMS:
   EZSwiftExtensions: 4afef248066a036903d8496bf07bc355b22ce766
-  HLSpriteKit: 6e1be7876cac3c81d1faf833d1216fb0937fe189
+  HLSpriteKit: fbc68e5be44324361d7a4df5b2cf78462e899ccf
 
-PODFILE CHECKSUM: 84aeccb48157b7e39bae043ef9f289f1cbf625c3
+PODFILE CHECKSUM: 2e2c39f59df064e8e1b8b2da43dbd0e1765f79e0
 
 COCOAPODS: 1.1.0.beta.1

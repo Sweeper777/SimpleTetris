@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		5A00DF411DA8D82600AD83A7 /* ButtonNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A00DF401DA8D82600AD83A7 /* ButtonNode.swift */; };
 		5A1B96371DAD16B700319A23 /* TetrisBlockOverflow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A1B96361DAD16B700319A23 /* TetrisBlockOverflow.swift */; };
-		5A1D0A891DBE091000518B6B /* HLSpriteKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A1D0A881DBE091000518B6B /* HLSpriteKit.framework */; };
+		5A1C1C051DBF9A0C0009162D /* HLSpriteKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A1D0A881DBE091000518B6B /* HLSpriteKit.framework */; };
 		5A2008511DAA6F7900441D09 /* JShapedTetrimino.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A2008501DAA6F7900441D09 /* JShapedTetrimino.swift */; };
 		5A2008531DAA737000441D09 /* LShapedTetrimino.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A2008521DAA737000441D09 /* LShapedTetrimino.swift */; };
 		5A2008551DAA9E8E00441D09 /* SShapedTetrimino.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A2008541DAA9E8E00441D09 /* SShapedTetrimino.swift */; };
@@ -41,6 +41,7 @@
 		4F4144C4C4E932A1C4947224 /* Pods_SimpleTetris.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SimpleTetris.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5A00DF401DA8D82600AD83A7 /* ButtonNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ButtonNode.swift; sourceTree = "<group>"; };
 		5A1B96361DAD16B700319A23 /* TetrisBlockOverflow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TetrisBlockOverflow.swift; sourceTree = "<group>"; };
+		5A1C1C031DBF99890009162D /* HLSpriteKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HLSpriteKit.framework; path = "Pods/../build/Debug-iphoneos/HLSpriteKit.framework"; sourceTree = "<group>"; };
 		5A1D0A881DBE091000518B6B /* HLSpriteKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HLSpriteKit.framework; path = "../../Library/Developer/Xcode/DerivedData/SimpleTetris-egikindlrixorraeplzahzqokebm/Build/Products/Debug-iphonesimulator/HLSpriteKit/HLSpriteKit.framework"; sourceTree = "<group>"; };
 		5A2008501DAA6F7900441D09 /* JShapedTetrimino.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JShapedTetrimino.swift; sourceTree = "<group>"; };
 		5A2008521DAA737000441D09 /* LShapedTetrimino.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LShapedTetrimino.swift; sourceTree = "<group>"; };
@@ -76,7 +77,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5A1D0A891DBE091000518B6B /* HLSpriteKit.framework in Frameworks */,
+				5A1C1C051DBF9A0C0009162D /* HLSpriteKit.framework in Frameworks */,
 				5AFEC0FC1D9FC5340054FAAA /* EZSwiftExtensions.framework in Frameworks */,
 				DE2B6DA7BE2CC352D9BE89FB /* Pods_SimpleTetris.framework in Frameworks */,
 			);
@@ -147,6 +148,7 @@
 		8D79E4E4E8AF8ACB410C019C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				5A1C1C031DBF99890009162D /* HLSpriteKit.framework */,
 				5A1D0A881DBE091000518B6B /* HLSpriteKit.framework */,
 				5AFEC0FA1D9FC5340054FAAA /* EZSwiftExtensions.framework */,
 				5AFEC0FB1D9FC5340054FAAA /* HLSpriteKit.framework */,
@@ -430,9 +432,10 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/build/Debug-iphoneos/HLSpriteKit",
+					"$(PROJECT_DIR)/build/Debug-iphoneos",
 				);
 				INFOPLIST_FILE = SimpleTetris/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.4;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.SimpleTetris;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -450,9 +453,10 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/build/Debug-iphoneos/HLSpriteKit",
+					"$(PROJECT_DIR)/build/Debug-iphoneos",
 				);
 				INFOPLIST_FILE = SimpleTetris/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.4;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.SimpleTetris;
 				PRODUCT_NAME = "$(TARGET_NAME)";
