@@ -1,5 +1,6 @@
 import UIKit
 import EZSwiftExtensions
+import Firebase
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -9,6 +10,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         lastUsedBuild = Int(ez.appBuild ?? "0") ?? 0
+        FIRApp.configure()
         return true
     }
 

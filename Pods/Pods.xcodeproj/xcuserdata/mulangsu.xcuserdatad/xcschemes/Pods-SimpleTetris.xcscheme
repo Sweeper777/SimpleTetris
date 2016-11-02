@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "68B7BA5C5578E345C56FD43C5BD6AD8B"
+               BlueprintIdentifier = "270AECDAE7A77FEAB9E52432C28EEF65"
                BuildableName = "Pods_SimpleTetris.framework"
                BlueprintName = "Pods-SimpleTetris"
                ReferencedContainer = "container:Pods.xcodeproj">
@@ -45,7 +45,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "68B7BA5C5578E345C56FD43C5BD6AD8B"
+            BlueprintIdentifier = "270AECDAE7A77FEAB9E52432C28EEF65"
             BuildableName = "Pods_SimpleTetris.framework"
             BlueprintName = "Pods-SimpleTetris"
             ReferencedContainer = "container:Pods.xcodeproj">

@@ -9,6 +9,11 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>GoogleToolboxForMac.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>HLSpriteKit.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -27,12 +32,17 @@
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>68B7BA5C5578E345C56FD43C5BD6AD8B</key>
+		<key>270AECDAE7A77FEAB9E52432C28EEF65</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
 		<key>6D46ACCA4C3F2BE3B8F9A9E35B37F4A4</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>92BB131FA876445E027D20AE23EA7B5F</key>
 		<dict>
 			<key>primary</key>
 			<true/>
