@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		5A00DF411DA8D82600AD83A7 /* ButtonNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A00DF401DA8D82600AD83A7 /* ButtonNode.swift */; };
+		5A158C8B1E367AC0007000FD /* Threshold.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 5A158C8A1E367AC0007000FD /* Threshold.mp3 */; };
 		5A1B96371DAD16B700319A23 /* TetrisBlockOverflow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A1B96361DAD16B700319A23 /* TetrisBlockOverflow.swift */; };
 		5A1BA52B1DC9CDEA00C03989 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5A1BA52A1DC9CDEA00C03989 /* GoogleService-Info.plist */; };
 		5A1C1C051DBF9A0C0009162D /* HLSpriteKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A1D0A881DBE091000518B6B /* HLSpriteKit.framework */; };
@@ -41,6 +42,7 @@
 		27A94E8DE41DC78BAFCEBD3D /* Pods-SimpleTetris.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SimpleTetris.release.xcconfig"; path = "Pods/Target Support Files/Pods-SimpleTetris/Pods-SimpleTetris.release.xcconfig"; sourceTree = "<group>"; };
 		4F4144C4C4E932A1C4947224 /* Pods_SimpleTetris.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SimpleTetris.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5A00DF401DA8D82600AD83A7 /* ButtonNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ButtonNode.swift; sourceTree = "<group>"; };
+		5A158C8A1E367AC0007000FD /* Threshold.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Threshold.mp3; sourceTree = "<group>"; };
 		5A1B96361DAD16B700319A23 /* TetrisBlockOverflow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TetrisBlockOverflow.swift; sourceTree = "<group>"; };
 		5A1BA52A1DC9CDEA00C03989 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		5A1C1C031DBF99890009162D /* HLSpriteKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HLSpriteKit.framework; path = "Pods/../build/Debug-iphoneos/HLSpriteKit.framework"; sourceTree = "<group>"; };
@@ -109,6 +111,7 @@
 		5AFEC0E11D9FC3910054FAAA /* SimpleTetris */ = {
 			isa = PBXGroup;
 			children = (
+				5A158C8A1E367AC0007000FD /* Threshold.mp3 */,
 				5A1BA52A1DC9CDEA00C03989 /* GoogleService-Info.plist */,
 				5AFEC0E21D9FC3910054FAAA /* AppDelegate.swift */,
 				5AFEC0E41D9FC3910054FAAA /* GameScene.sks */,
@@ -226,6 +229,7 @@
 				5AFEC0EE1D9FC3910054FAAA /* Main.storyboard in Resources */,
 				5AFED87A1DA10BFD00B0FB39 /* TetrisScene.sks in Resources */,
 				5AFEC0E51D9FC3910054FAAA /* GameScene.sks in Resources */,
+				5A158C8B1E367AC0007000FD /* Threshold.mp3 in Resources */,
 				5AFEC0F01D9FC3910054FAAA /* Assets.xcassets in Resources */,
 				5AFEC0F31D9FC3910054FAAA /* LaunchScreen.storyboard in Resources */,
 				5AFEC0E71D9FC3910054FAAA /* Actions.sks in Resources */,
