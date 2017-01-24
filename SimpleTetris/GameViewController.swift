@@ -32,6 +32,11 @@ class GameViewController: UIViewController {
             
             audioPlayer.numberOfLoops = -1
             audioPlayer.prepareToPlay()
+            
+            if !UserDefaults.standard.bool(forKey: "bgm") {
+                audioPlayer.volume = 0
+            }
+            
             audioPlayer.play()
         }
     }
