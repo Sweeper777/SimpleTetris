@@ -9,9 +9,12 @@
 import UIKit
 import SpriteKit
 import GameplayKit
+import AVFoundation
 
 class GameViewController: UIViewController {
 
+    let audioPlayer = try! AVAudioPlayer(contentsOf: Bundle.main.url(forResource: "Threshold", withExtension: "mp3")!)
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -26,6 +29,10 @@ class GameViewController: UIViewController {
             }
             
             view.ignoresSiblingOrder = true
+            
+            audioPlayer.numberOfLoops = -1
+            audioPlayer.prepareToPlay()
+            audioPlayer.play()
         }
     }
 
