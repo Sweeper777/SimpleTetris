@@ -4,6 +4,7 @@ import GameplayKit
 class GameScene: SKScene {
     var startButton: SKSpriteNode!
     var gestureCheckbox: SKSpriteNode!
+    var bgmCheckbox: SKSpriteNode!
     
     override func didMove(to view: SKView) {
         self.view?.ignoresSiblingOrder = true
@@ -25,6 +26,11 @@ class GameScene: SKScene {
         gestureCheckbox.zPosition = 1000
         let gestureEnabled = UserDefaults.standard.bool(forKey: "gestures")
         gestureCheckbox.texture = SKTexture(imageNamed: gestureEnabled ? "gestureChecked" : "gestureUnchecked")
+        
+        bgmCheckbox = background.childNode(withName: "bgmCheckbox") as! SKSpriteNode
+        bgmCheckbox.zPosition = 1000
+        let bgmEnabled = UserDefaults.standard.bool(forKey: "bgm")
+        bgmCheckbox.texture = SKTexture(imageNamed: bgmEnabled ? "bgmChecked" : "bgmUnchecked")
         
         let bestScoreLabel = background.childNode(withName: "bestScoreBg")!.childNode(withName: "bestScoreLabel") as! SKLabelNode
         bestScoreLabel.text = String(UserDefaults.standard.integer(forKey: "bestScore"))
@@ -50,6 +56,15 @@ class GameScene: SKScene {
                 let animation = SKAction.setTexture(SKTexture(imageNamed: !gestureEnabled ? "gestureChecked" : "gestureUnchecked"))
                 gestureCheckbox.run(animation)
                 UserDefaults.standard.set(!gestureEnabled, forKey: "gestures")
+            } else if self.nodes(at: location).contains(bgmCheckbox) {
+                let bgmEnabled = UserDefaults.standard.bool(forKey: "bgm")
+                let animation = SKAction.setTexture(SKTexture(imageNamed: !bgmEnabled ? "bgmChecked" : "bgmUnchecked"))
+                bgmCheckbox.run(animation)
+                UserDefaults.standard.set(!bgmEnabled, forKey: "bgm")
+                
+                if let vc = (UIApplication.shared.delegate as? AppDelegate)?.window?.rootViewController as? GameViewController {
+                    vc.audioPlayer.volume = !bgmEnabled ? 1.0 : 0.0
+                }
             }
         }
     }
