@@ -6,6 +6,8 @@
 //  Copyright (c) 2015 Goktug Yilmaz. All rights reserved.
 //
 
+#if os(iOS) || os(tvOS)
+
 import UIKit
 
 extension UIColor {
@@ -61,7 +63,7 @@ extension UIColor {
     }
 
     /// EZSE: Returns random UIColor with random alpha(default: false)
-    public static func randomColor(_ randomAlpha: Bool = false) -> UIColor {
+    public static func random(randomAlpha: Bool = false) -> UIColor {
         let randomRed = CGFloat.random()
         let randomGreen = CGFloat.random()
         let randomBlue = CGFloat.random()
@@ -70,10 +72,5 @@ extension UIColor {
     }
 
 }
-
-private extension CGFloat {
-    /// SwiftRandom extension
-    static func random(_ lower: CGFloat = 0, _ upper: CGFloat = 1) -> CGFloat {
-        return CGFloat(Float(arc4random()) / Float(UINT32_MAX)) * (upper - lower) + lower
-    }
-}
+    
+#endif

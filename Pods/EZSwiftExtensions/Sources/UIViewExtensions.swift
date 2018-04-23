@@ -6,6 +6,8 @@
 //  Copyright (c) 2015 Goktug Yilmaz. All rights reserved.
 //
 
+#if os(iOS) || os(tvOS)
+
 import UIKit
 
 // MARK: Custom UIView Initilizers
@@ -31,10 +33,11 @@ extension UIView {
 
     /// EZSwiftExtensions, add multiple subviews
     public func addSubviews(_ views: [UIView]) {
-        views.forEach { eachView in
-            self.addSubview(eachView)
+        views.forEach { [weak self] eachView in
+            self?.addSubview(eachView)
         }
     }
+
     //TODO: Add pics to readme
     /// EZSwiftExtensions, resizes this view so it fits the largest subview
     public func resizeToFitSubviews() {
@@ -268,7 +271,7 @@ extension UIView {
     public func setRotationX(_ x: CGFloat) {
         var transform = CATransform3DIdentity
         transform.m34 = 1.0 / -1000.0
-        transform = CATransform3DRotate(transform, x.toRadians(), 1.0, 0.0, 0.0)
+        transform = CATransform3DRotate(transform, x.degreesToRadians(), 1.0, 0.0, 0.0)
         self.layer.transform = transform
     }
 
@@ -276,7 +279,7 @@ extension UIView {
     public func setRotationY(_ y: CGFloat) {
         var transform = CATransform3DIdentity
         transform.m34 = 1.0 / -1000.0
-        transform = CATransform3DRotate(transform, y.toRadians(), 0.0, 1.0, 0.0)
+        transform = CATransform3DRotate(transform, y.degreesToRadians(), 0.0, 1.0, 0.0)
         self.layer.transform = transform
     }
 
@@ -284,7 +287,7 @@ extension UIView {
     public func setRotationZ(_ z: CGFloat) {
         var transform = CATransform3DIdentity
         transform.m34 = 1.0 / -1000.0
-        transform = CATransform3DRotate(transform, z.toRadians(), 0.0, 0.0, 1.0)
+        transform = CATransform3DRotate(transform, z.degreesToRadians(), 0.0, 0.0, 1.0)
         self.layer.transform = transform
     }
 
@@ -292,9 +295,9 @@ extension UIView {
     public func setRotation(x: CGFloat, y: CGFloat, z: CGFloat) {
         var transform = CATransform3DIdentity
         transform.m34 = 1.0 / -1000.0
-        transform = CATransform3DRotate(transform, x.toRadians(), 1.0, 0.0, 0.0)
-        transform = CATransform3DRotate(transform, y.toRadians(), 0.0, 1.0, 0.0)
-        transform = CATransform3DRotate(transform, z.toRadians(), 0.0, 0.0, 1.0)
+        transform = CATransform3DRotate(transform, x.degreesToRadians(), 1.0, 0.0, 0.0)
+        transform = CATransform3DRotate(transform, y.degreesToRadians(), 0.0, 1.0, 0.0)
+        transform = CATransform3DRotate(transform, z.degreesToRadians(), 0.0, 0.0, 1.0)
         self.layer.transform = transform
     }
 
@@ -305,7 +308,6 @@ extension UIView {
         transform = CATransform3DScale(transform, x, y, 1)
         self.layer.transform = transform
     }
-
 }
 
 // MARK: Layer Extensions
@@ -476,7 +478,7 @@ extension UIView {
     }
 
     /// EZSwiftExtensions - Make sure you use  "[weak self] (gesture) in" if you are using the keyword self inside the closure or there might be a memory leak
-    public func addTapGesture(tapNumber: Int = 1, action: ((UITapGestureRecognizer) -> ())?) {
+    public func addTapGesture(tapNumber: Int = 1, action: ((UITapGestureRecognizer) -> Void)?) {
         let tap = BlockTap(tapCount: tapNumber, fingerCount: 1, action: action)
         addGestureRecognizer(tap)
         isUserInteractionEnabled = true
@@ -488,7 +490,9 @@ extension UIView {
         swipe.direction = direction
 
         #if os(iOS)
+
         swipe.numberOfTouchesRequired = numberOfTouches
+
         #endif
 
         addGestureRecognizer(swipe)
@@ -496,7 +500,7 @@ extension UIView {
     }
 
     /// EZSwiftExtensions - Make sure you use  "[weak self] (gesture) in" if you are using the keyword self inside the closure or there might be a memory leak
-    public func addSwipeGesture(direction: UISwipeGestureRecognizerDirection, numberOfTouches: Int = 1, action: ((UISwipeGestureRecognizer) -> ())?) {
+    public func addSwipeGesture(direction: UISwipeGestureRecognizerDirection, numberOfTouches: Int = 1, action: ((UISwipeGestureRecognizer) -> Void)?) {
         let swipe = BlockSwipe(direction: direction, fingerCount: numberOfTouches, action: action)
         addGestureRecognizer(swipe)
         isUserInteractionEnabled = true
@@ -510,28 +514,32 @@ extension UIView {
     }
 
     /// EZSwiftExtensions - Make sure you use  "[weak self] (gesture) in" if you are using the keyword self inside the closure or there might be a memory leak
-    public func addPanGesture(action: ((UIPanGestureRecognizer) -> ())?) {
+    public func addPanGesture(action: ((UIPanGestureRecognizer) -> Void)?) {
         let pan = BlockPan(action: action)
         addGestureRecognizer(pan)
         isUserInteractionEnabled = true
     }
 
     #if os(iOS)
+
     /// EZSwiftExtensions
     public func addPinchGesture(target: AnyObject, action: Selector) {
         let pinch = UIPinchGestureRecognizer(target: target, action: action)
         addGestureRecognizer(pinch)
         isUserInteractionEnabled = true
     }
+
     #endif
 
     #if os(iOS)
+
     /// EZSwiftExtensions - Make sure you use  "[weak self] (gesture) in" if you are using the keyword self inside the closure or there might be a memory leak
-    public func addPinchGesture(action: ((UIPinchGestureRecognizer) -> ())?) {
+    public func addPinchGesture(action: ((UIPinchGestureRecognizer) -> Void)?) {
         let pinch = BlockPinch(action: action)
         addGestureRecognizer(pinch)
         isUserInteractionEnabled = true
     }
+
     #endif
 
     /// EZSwiftExtensions
@@ -542,7 +550,7 @@ extension UIView {
     }
 
     /// EZSwiftExtensions - Make sure you use  "[weak self] (gesture) in" if you are using the keyword self inside the closure or there might be a memory leak
-    public func addLongPressGesture(action: ((UILongPressGestureRecognizer) -> ())?) {
+    public func addLongPressGesture(action: ((UILongPressGestureRecognizer) -> Void)?) {
         let longPress = BlockLongPress(action: action)
         addGestureRecognizer(longPress)
         isUserInteractionEnabled = true
@@ -558,10 +566,18 @@ extension UIView {
         mask.path = path.cgPath
         self.layer.mask = mask
     }
-
-    /// EZSwiftExtensions
-    public func roundView() {
-        self.layer.cornerRadius = min(self.frame.size.height, self.frame.size.width) / 2
+    
+    /// EZSwiftExtensions - Mask square/rectangle UIView with a circular/capsule cover, with a border of desired color and width around it
+    public func roundView(withBorderColor color: UIColor? = nil, withBorderWidth width: CGFloat? = nil) {
+        self.setCornerRadius(radius: min(self.frame.size.height, self.frame.size.width) / 2)
+        self.layer.borderWidth = width ?? 0
+        self.layer.borderColor = color?.cgColor ?? UIColor.clear.cgColor
+    }
+    
+    /// EZSwiftExtensions - Remove all masking around UIView
+    public func nakedView() {
+        self.layer.mask = nil
+        self.layer.borderWidth = 0
     }
 }
 
@@ -590,3 +606,28 @@ extension UIView {
         return parentView.rootView()
     }
 }
+
+// MARK: Fade Extensions
+
+private let UIViewDefaultFadeDuration: TimeInterval = 0.4
+
+extension UIView {
+    ///EZSE: Fade in with duration, delay and completion block.
+    public func fadeIn(_ duration: TimeInterval? = UIViewDefaultFadeDuration, delay: TimeInterval? = 0.0, completion: ((Bool) -> Void)? = nil) {
+        fadeTo(1.0, duration: duration, delay: delay, completion: completion)
+    }
+
+    /// EZSwiftExtensions
+    public func fadeOut(_ duration: TimeInterval? = UIViewDefaultFadeDuration, delay: TimeInterval? = 0.0, completion: ((Bool) -> Void)? = nil) {
+        fadeTo(0.0, duration: duration, delay: delay, completion: completion)
+    }
+
+    /// Fade to specific value	 with duration, delay and completion block.
+    public func fadeTo(_ value: CGFloat, duration: TimeInterval? = UIViewDefaultFadeDuration, delay: TimeInterval? = 0.0, completion: ((Bool) -> Void)? = nil) {
+        UIView.animate(withDuration: duration ?? UIViewDefaultFadeDuration, delay: delay ?? UIViewDefaultFadeDuration, options: .curveEaseInOut, animations: {
+            self.alpha = value
+        }, completion: completion)
+    }
+}
+
+#endif

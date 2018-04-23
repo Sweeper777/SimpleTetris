@@ -6,11 +6,13 @@
 //
 //
 
+#if os(iOS) || os(tvOS)
+
 import UIKit
 
 ///Make sure you use  "[weak self] (gesture) in" if you are using the keyword self inside the closure or there might be a memory leak
 open class BlockPan: UIPanGestureRecognizer {
-    fileprivate var panAction: ((UIPanGestureRecognizer) -> Void)?
+    private var panAction: ((UIPanGestureRecognizer) -> Void)?
 
     public override init(target: Any?, action: Selector?) {
         super.init(target: target, action: action)
@@ -26,3 +28,5 @@ open class BlockPan: UIPanGestureRecognizer {
         panAction? (pan)
     }
 }
+
+#endif

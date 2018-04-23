@@ -87,20 +87,50 @@ typedef NS_ENUM(NSInteger, HLMessageNodeAnimation) {
 
 /**
  The size of the message node background.
+
+ Default value `14.0`.
 */
 @property (nonatomic, assign) CGSize size;
 
 /**
  The anchor point of the message node background.
+
+ Default value `(0.5, 0.5)`.
 */
 @property (nonatomic, assign) CGPoint anchorPoint;
 
 /**
- The vertical alignment mode of the message label within the background.
+ The horizontal alignment mode of the message label within the background.
 
- See `HLLabelNodeVerticalAlignmentMode` for details.
+ Default value `SKLabelVerticalAlignmentModeCenter`.
 */
-@property (nonatomic, assign) HLLabelNodeVerticalAlignmentMode verticalAlignmentMode;
+@property (nonatomic, assign) SKLabelHorizontalAlignmentMode horizontalAlignmentMode;
+
+/**
+ A margin used to inset the text from the edge of the background when using a left or
+ right horizontal alignment mode; see `horizontalAlignmentMode`.
+
+ Not used when the horizontal alignment mode is center.
+
+ Default value `0.0`.
+ */
+@property (nonatomic, assign) CGFloat horizontalMargin;
+
+/**
+ Specifies how to calculate the message label height when aligning it in the center
+ of the background.
+
+ In particular, messages (for most applications) should be baseline-aligned, and
+ vertically visually centered in the background.  A good height mode for most fonts to
+ achieve that goal is `HLLabelHeightModeFont`.  If that looks like it's leaving too much
+ room for the descender, try `HLLabelHeightModeAscenderBias`.
+
+ See `getVerticalAlignmentMode:heightMode:useAlignmentMode:labelHeight:yOffset` in
+ `SKLabelNode+HLLabelNodeAdditions.h` for way too much information.
+
+ Default value is `HLLabelHeightModeFont`.
+*/
+@property (nonatomic, assign) HLLabelHeightMode heightMode;
 
 /// @name Configuring Appearance
 

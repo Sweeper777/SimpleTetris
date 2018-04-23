@@ -6,9 +6,17 @@
 //  Copyright (c) 2015 Goktug Yilmaz. All rights reserved.
 //
 
+#if os(iOS) || os(tvOS)
+
 import UIKit
 
 extension UIImage {
+    
+    /// EZSE: Returns base64 string
+    var base64: String {
+        return UIImageJPEGRepresentation(self, 1.0)!.base64EncodedString()
+    }
+    
     /// EZSE: Returns compressed image to rate from 0 to 1
     public func compressImage(rate: CGFloat) -> Data? {
         return UIImageJPEGRepresentation(self, rate)
@@ -92,7 +100,8 @@ extension UIImage {
         let context = UIGraphicsGetCurrentContext()
         context?.translateBy(x: 0, y: self.size.height)
         context?.scaleBy(x: 1.0, y: -1.0)
-        context?.setBlendMode(.normal)
+        context?.setBlendMode(CGBlendMode.normal)
+
         let rect = CGRect(x: 0, y: 0, width: self.size.width, height: self.size.height) as CGRect
         context?.clip(to: rect, mask: self.cgImage!)
         tintColor.setFill()
@@ -126,3 +135,5 @@ extension UIImage {
         return image!
     }
 }
+
+#endif

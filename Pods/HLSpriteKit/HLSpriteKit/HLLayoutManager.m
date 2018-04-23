@@ -18,9 +18,19 @@ HLLayoutManagerGetNodeSize(id node)
   if ([node isKindOfClass:[SKLabelNode class]]) {
     return [(SKLabelNode *)node frame].size;
   }
-  if ([node respondsToSelector:@selector(size)]) {
-    return [node size];
+
+  SEL selector = @selector(size);
+  NSMethodSignature *sizeMethodSignature = [node methodSignatureForSelector:selector];
+  if (sizeMethodSignature
+      && strcmp(sizeMethodSignature.methodReturnType, @encode(CGSize)) == 0) {
+    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:sizeMethodSignature];
+    invocation.selector = selector;
+    [invocation invokeWithTarget:node];
+    CGSize nodeSize;
+    [invocation getReturnValue:&nodeSize];
+    return nodeSize;
   }
+  
   return CGSizeZero;
 }
 
@@ -32,9 +42,19 @@ HLLayoutManagerGetNodeWidth(id node)
   if ([node isKindOfClass:[SKLabelNode class]]) {
     return [(SKLabelNode *)node frame].size.width;
   }
-  if ([node respondsToSelector:@selector(size)]) {
-    return [node size].width;
+
+  SEL selector = @selector(size);
+  NSMethodSignature *sizeMethodSignature = [node methodSignatureForSelector:selector];
+  if (sizeMethodSignature
+      && strcmp(sizeMethodSignature.methodReturnType, @encode(CGSize)) == 0) {
+    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:sizeMethodSignature];
+    invocation.selector = selector;
+    [invocation invokeWithTarget:node];
+    CGSize nodeSize;
+    [invocation getReturnValue:&nodeSize];
+    return nodeSize.width;
   }
+  
   return 0.0f;
 }
 
@@ -46,8 +66,18 @@ HLLayoutManagerGetNodeHeight(id node)
   if ([node isKindOfClass:[SKLabelNode class]]) {
     return [(SKLabelNode *)node frame].size.height;
   }
-  if ([node respondsToSelector:@selector(size)]) {
-    return [node size].height;
+
+  SEL selector = @selector(size);
+  NSMethodSignature *sizeMethodSignature = [node methodSignatureForSelector:selector];
+  if (sizeMethodSignature
+      && strcmp(sizeMethodSignature.methodReturnType, @encode(CGSize)) == 0) {
+    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:sizeMethodSignature];
+    invocation.selector = selector;
+    [invocation invokeWithTarget:node];
+    CGSize nodeSize;
+    [invocation getReturnValue:&nodeSize];
+    return nodeSize.height;
   }
+
   return 0.0f;
 }

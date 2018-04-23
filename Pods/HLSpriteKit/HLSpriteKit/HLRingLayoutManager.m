@@ -17,13 +17,14 @@ typedef NS_ENUM(NSInteger, HLRingLayoutManagerThetasMode) {
   HLRingLayoutManagerThetasAssigned,
   HLRingLayoutManagerThetasRegular,
   HLRingLayoutManagerThetasIncremental,
+  HLRingLayoutManagerThetasCentered,
 };
 
 @implementation HLRingLayoutManager
 {
   HLRingLayoutManagerThetasMode _thetasMode;
   NSArray *_thetas;
-  CGFloat _initialTheta;
+  CGFloat _guideTheta;
   CGFloat _thetaIncrement;
 }
 
@@ -41,9 +42,9 @@ typedef NS_ENUM(NSInteger, HLRingLayoutManagerThetasMode) {
   self = [super init];
   if (self) {
 #if TARGET_OS_IPHONE
-    _ringOffset = [aDecoder decodeCGPointForKey:@"ringOffset"];
+    _ringPosition = [aDecoder decodeCGPointForKey:@"ringPosition"];
 #else
-    _ringOffset = [aDecoder decodePointForKey:@"ringOffset"];
+    _ringPosition = [aDecoder decodePointForKey:@"ringPosition"];
 #endif
     _radii = [aDecoder decodeObjectForKey:@"radii"];
     _thetasMode = [aDecoder decodeIntegerForKey:@"thetasMode"];
@@ -52,10 +53,17 @@ typedef NS_ENUM(NSInteger, HLRingLayoutManagerThetasMode) {
         _thetas = [aDecoder decodeObjectForKey:@"thetas"];
         break;
       case HLRingLayoutManagerThetasRegular:
-        _initialTheta = [aDecoder decodeDoubleForKey:@"initialTheta"];
+        // note: Coded as "initialTheta" for legacy reasons.
+        _guideTheta = [aDecoder decodeDoubleForKey:@"initialTheta"];
         break;
       case HLRingLayoutManagerThetasIncremental:
-        _initialTheta = [aDecoder decodeDoubleForKey:@"initialTheta"];
+        // note: Coded as "initialTheta" for legacy reasons.
+        _guideTheta = [aDecoder decodeDoubleForKey:@"initialTheta"];
+        _thetaIncrement = [aDecoder decodeDoubleForKey:@"thetaIncrement"];
+        break;
+      case HLRingLayoutManagerThetasCentered:
+        // note: Coded as "initialTheta" for legacy reasons.
+        _guideTheta = [aDecoder decodeDoubleForKey:@"initialTheta"];
         _thetaIncrement = [aDecoder decodeDoubleForKey:@"thetaIncrement"];
         break;
       case HLRingLayoutManagerThetasNone:
@@ -68,9 +76,9 @@ typedef NS_ENUM(NSInteger, HLRingLayoutManagerThetasMode) {
 - (void)encodeWithCoder:(NSCoder *)aCoder
 {
 #if TARGET_OS_IPHONE
-  [aCoder encodeCGPoint:_ringOffset forKey:@"ringOffset"];
+  [aCoder encodeCGPoint:_ringPosition forKey:@"ringPosition"];
 #else
-  [aCoder encodePoint:_ringOffset forKey:@"ringOffset"];
+  [aCoder encodePoint:_ringPosition forKey:@"ringPosition"];
 #endif
   [aCoder encodeObject:_radii forKey:@"radii"];
   [aCoder encodeInteger:_thetasMode forKey:@"thetasMode"];
@@ -79,10 +87,17 @@ typedef NS_ENUM(NSInteger, HLRingLayoutManagerThetasMode) {
       [aCoder encodeObject:_thetas forKey:@"thetas"];
       break;
     case HLRingLayoutManagerThetasRegular:
-      [aCoder encodeDouble:_initialTheta forKey:@"initialTheta"];
+      // note: Coded as "initialTheta" for legacy reasons.
+      [aCoder encodeDouble:_guideTheta forKey:@"initialTheta"];
       break;
     case HLRingLayoutManagerThetasIncremental:
-      [aCoder encodeDouble:_initialTheta forKey:@"initialTheta"];
+      // note: Coded as "initialTheta" for legacy reasons.
+      [aCoder encodeDouble:_guideTheta forKey:@"initialTheta"];
+      [aCoder encodeDouble:_thetaIncrement forKey:@"thetaIncrement"];
+      break;
+    case HLRingLayoutManagerThetasCentered:
+      // note: Coded as "initialTheta" for legacy reasons.
+      [aCoder encodeDouble:_guideTheta forKey:@"initialTheta"];
       [aCoder encodeDouble:_thetaIncrement forKey:@"thetaIncrement"];
       break;
     case HLRingLayoutManagerThetasNone:
@@ -94,7 +109,7 @@ typedef NS_ENUM(NSInteger, HLRingLayoutManagerThetasMode) {
 {
   HLRingLayoutManager *copy = [[[self class] allocWithZone:zone] init];
   if (copy) {
-    copy->_ringOffset = _ringOffset;
+    copy->_ringPosition = _ringPosition;
     copy->_radii = [_radii copy];
     copy->_thetasMode = _thetasMode;
     switch (_thetasMode) {
@@ -102,10 +117,14 @@ typedef NS_ENUM(NSInteger, HLRingLayoutManagerThetasMode) {
         copy->_thetas = [_thetas copy];
         break;
       case HLRingLayoutManagerThetasRegular:
-        copy->_initialTheta = _initialTheta;
+        copy->_guideTheta = _guideTheta;
         break;
       case HLRingLayoutManagerThetasIncremental:
-        copy->_initialTheta = _initialTheta;
+        copy->_guideTheta = _guideTheta;
+        copy->_thetaIncrement = _thetaIncrement;
+        break;
+      case HLRingLayoutManagerThetasCentered:
+        copy->_guideTheta = _guideTheta;
         copy->_thetaIncrement = _thetaIncrement;
         break;
       case HLRingLayoutManagerThetasNone:
@@ -125,14 +144,22 @@ typedef NS_ENUM(NSInteger, HLRingLayoutManagerThetasMode) {
 {
   _thetasMode = HLRingLayoutManagerThetasRegular;
   _thetas = nil;
-  _initialTheta = initialThetaRadians;
+  _guideTheta = initialThetaRadians;
 }
 
 - (void)setThetasWithInitialTheta:(CGFloat)initialThetaRadians thetaIncrement:(CGFloat)thetaIncrementRadians
 {
   _thetasMode = HLRingLayoutManagerThetasIncremental;
   _thetas = nil;
-  _initialTheta = initialThetaRadians;
+  _guideTheta = initialThetaRadians;
+  _thetaIncrement = thetaIncrementRadians;
+}
+
+- (void)setThetasWithCenterTheta:(CGFloat)centerThetaRadians thetaIncrement:(CGFloat)thetaIncrementRadians
+{
+  _thetasMode = HLRingLayoutManagerThetasCentered;
+  _thetas = nil;
+  _guideTheta = centerThetaRadians;
   _thetaIncrement = thetaIncrementRadians;
 }
 
@@ -148,7 +175,7 @@ typedef NS_ENUM(NSInteger, HLRingLayoutManagerThetasMode) {
     return;
   }
 
-  NSUInteger thetasCount = [_thetas count];
+  NSUInteger thetasCount = (_thetas ? [_thetas count] : 0);
   CGFloat theta = 0.0f;
   CGFloat thetaIncrement = 0.0f;
   switch (_thetasMode) {
@@ -158,11 +185,15 @@ typedef NS_ENUM(NSInteger, HLRingLayoutManagerThetasMode) {
       }
       break;
     case HLRingLayoutManagerThetasRegular:
-      theta = _initialTheta;
+      theta = _guideTheta;
       thetaIncrement = (CGFloat)(2.0 * M_PI / nodeCount);
       break;
     case HLRingLayoutManagerThetasIncremental:
-      theta = _initialTheta;
+      theta = _guideTheta;
+      thetaIncrement = _thetaIncrement;
+      break;
+    case HLRingLayoutManagerThetasCentered:
+      theta = _guideTheta - _thetaIncrement * (CGFloat)(nodeCount - 1) / 2.0f;
       thetaIncrement = _thetaIncrement;
       break;
     case HLRingLayoutManagerThetasNone:

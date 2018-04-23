@@ -11,6 +11,7 @@
 #import "HLMath.h"
 #import "HLItemNode.h"
 #import "HLItemsNode.h"
+#import "HLLayoutManager.h"
 
 enum {
   HLToolbarNodeZPositionLayerBackground = 0,
@@ -327,6 +328,27 @@ static const NSTimeInterval HLToolbarSlideDuration = 0.15f;
   return nil;
 }
 
+- (NSArray *)toolNodes
+{
+  NSMutableArray *toolNodes = [NSMutableArray arrayWithCapacity:[_squaresNode.itemNodes count]];
+  NSArray *squareNodes = _squaresNode.itemNodes;
+  for (HLBackdropItemNode *squareNode in squareNodes) {
+    [toolNodes addObject:squareNode.content];
+  }
+  return toolNodes;
+}
+
+- (SKNode *)toolNodeForTool:(NSString *)toolTag
+{
+  NSArray *squareNodes = _squaresNode.itemNodes;
+  for (HLBackdropItemNode *squareNode in squareNodes) {
+    if ([squareNode.name isEqualToString:toolTag]) {
+      return squareNode.content;
+    }
+  }
+  return nil;
+}
+
 - (SKNode *)squareNodeForTool:(NSString *)toolTag
 {
   NSArray *squareNodes = _squaresNode.itemNodes;
@@ -336,6 +358,28 @@ static const NSTimeInterval HLToolbarSlideDuration = 0.15f;
     }
   }
   return nil;
+}
+
+- (BOOL)enabledForTool:(NSString *)toolTag
+{
+  NSArray *squareNodes = _squaresNode.itemNodes;
+  for (HLBackdropItemNode *squareNode in squareNodes) {
+    if ([squareNode.name isEqualToString:toolTag]) {
+      return squareNode.enabled;
+    }
+  }
+  return YES;
+}
+
+- (void)setEnabled:(BOOL)enabled forTool:(NSString *)toolTag
+{
+  NSArray *squareNodes = _squaresNode.itemNodes;
+  for (HLBackdropItemNode *squareNode in squareNodes) {
+    if ([squareNode.name isEqualToString:toolTag]) {
+      squareNode.enabled = enabled;
+      break;
+    }
+  }
 }
 
 - (BOOL)highlightForTool:(NSString *)toolTag
@@ -388,26 +432,64 @@ static const NSTimeInterval HLToolbarSlideDuration = 0.15f;
   }
 }
 
-- (BOOL)enabledForTool:(NSString *)toolTag
+- (NSString *)selectionTool
 {
-  NSArray *squareNodes = _squaresNode.itemNodes;
-  for (HLBackdropItemNode *squareNode in squareNodes) {
-    if ([squareNode.name isEqualToString:toolTag]) {
-      return squareNode.enabled;
-    }
+  int squareIndex = _squaresNode.selectionItem;
+  if (squareIndex == -1) {
+    return nil;
   }
-  return YES;
+  HLBackdropItemNode *squareNode = _squaresNode.itemNodes[squareIndex];
+  return squareNode.name;
 }
 
-- (void)setEnabled:(BOOL)enabled forTool:(NSString *)toolTag
+- (void)setSelectionForTool:(NSString *)toolTag
 {
+  int squareIndex = 0;
   NSArray *squareNodes = _squaresNode.itemNodes;
   for (HLBackdropItemNode *squareNode in squareNodes) {
     if ([squareNode.name isEqualToString:toolTag]) {
-      squareNode.enabled = enabled;
-      break;
+      [_squaresNode setSelectionForItem:squareIndex];
+      return;
     }
+    ++squareIndex;
   }
+  [_squaresNode clearSelection];
+}
+
+- (void)setSelectionForTool:(NSString *)toolTag
+                 blinkCount:(int)blinkCount
+          halfCycleDuration:(NSTimeInterval)halfCycleDuration
+                 completion:(void (^)(void))completion
+{
+  int squareIndex = 0;
+  NSArray *squareNodes = _squaresNode.itemNodes;
+  for (HLBackdropItemNode *squareNode in squareNodes) {
+    if ([squareNode.name isEqualToString:toolTag]) {
+      [_squaresNode setSelectionForItem:squareIndex
+                             blinkCount:blinkCount
+                      halfCycleDuration:halfCycleDuration
+                             completion:completion];
+      return;
+    }
+    ++squareIndex;
+  }
+  [_squaresNode clearSelectionBlinkCount:blinkCount
+                       halfCycleDuration:halfCycleDuration
+                              completion:completion];
+}
+
+- (void)clearSelection
+{
+  [_squaresNode clearSelection];
+}
+
+- (void)clearSelectionBlinkCount:(int)blinkCount
+               halfCycleDuration:(NSTimeInterval)halfCycleDuration
+                      completion:(void (^)(void))completion
+{
+  [_squaresNode clearSelectionBlinkCount:blinkCount
+                       halfCycleDuration:halfCycleDuration
+                              completion:completion];
 }
 
 #pragma mark -
@@ -567,7 +649,8 @@ static const NSTimeInterval HLToolbarSlideDuration = 0.15f;
     // tool implement a size method.  Assume that the reported size, however, does not yet
     // account for rotation.
     SKNode *toolNode = squareNode.content;
-    CGSize naturalToolSize = HLGetBoundsForTransformation([(id)toolNode size], toolNode.zRotation);
+    CGSize basicToolSize = HLLayoutManagerGetNodeSize(toolNode);
+    CGSize naturalToolSize = HLGetBoundsForTransformation(basicToolSize, toolNode.zRotation);
     naturalToolsSize.width += naturalToolSize.width;
     if (naturalToolSize.height > naturalToolsSize.height) {
       naturalToolsSize.height = naturalToolSize.height;
@@ -685,7 +768,8 @@ static const NSTimeInterval HLToolbarSlideDuration = 0.15f;
   for (HLBackdropItemNode *squareNode in squareNodes) {
     SKNode *toolNode = squareNode.content;
 
-    CGSize naturalToolSize = HLGetBoundsForTransformation([(id)toolNode size], toolNode.zRotation);
+    CGSize basicToolSize = HLLayoutManagerGetNodeSize(toolNode);
+    CGSize naturalToolSize = HLGetBoundsForTransformation(basicToolSize, toolNode.zRotation);
     // note: Can multiply toolNode.scale by finalToolsScale, directly.  But that's messing
     // with the properties of the nodes passed in to us.  Instead, set the scale of the
     // square, which will then be inherited (multiplied) automatically.

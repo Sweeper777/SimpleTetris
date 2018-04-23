@@ -8,8 +8,9 @@
 
 #import "HLMenuNode.h"
 
-#import "HLError.h"
 #import "HLLabelButtonNode.h"
+#import "HLLayoutManager.h"
+#import "HLLog.h"
 #import "SKNode+HLGestureTarget.h"
 
 static const NSTimeInterval HLMenuNodeLongSelectedDuration = 0.5;
@@ -32,8 +33,7 @@ HLMenuNodeValidateButtonPrototype(SKNode *buttonPrototype, NSString *label)
     if ([buttonPrototype hlGestureTarget]) {
       // This might be okay, but it seems like it will cause confusion if the button is
       // trying to handle gestures separately from the menu node.  Log error and continue.
-      HLError(HLLevelWarning,
-              [NSString stringWithFormat:@"HLMenuNode: Button prototype for \"%@\" is not expected to have a gesture target; removing it.", label]);
+      HLLog(HLLogWarning, @"HLMenuNode: Button prototype for \"%@\" is not expected to have a gesture target; removing it.", label);
       [buttonPrototype hlSetGestureTarget:nil];
     }
   }
@@ -65,7 +65,7 @@ HLMenuNodeValidateButtonPrototype(SKNode *buttonPrototype, NSString *label)
     itemButtonPrototype.fontName = @"Helvetica";
     itemButtonPrototype.fontSize = 24.0f;
     itemButtonPrototype.fontColor = [SKColor whiteColor];
-    itemButtonPrototype.verticalAlignmentMode = HLLabelNodeVerticalAlignFont;
+    itemButtonPrototype.heightMode = HLLabelHeightModeFont;
     _itemButtonPrototype = itemButtonPrototype;
     _menuItemButtonPrototype = nil;
     _backItemButtonPrototype = nil;
@@ -423,7 +423,7 @@ HLMenuNodeValidateButtonPrototype(SKNode *buttonPrototype, NSString *label)
 
     [_buttonsNode addChild:buttonNode];
 
-    CGSize buttonSize = [(id)buttonNode size];
+    CGSize buttonSize = HLLayoutManagerGetNodeSize(buttonNode);
     if (buttonSize.width > widthMax) {
       widthMax = buttonSize.width;
     }
@@ -439,9 +439,9 @@ HLMenuNodeValidateButtonPrototype(SKNode *buttonPrototype, NSString *label)
   CGFloat y = _size.height * (1.0f - _anchorPoint.y);
   for (SKNode *buttonNode in _buttonsNode.children) {
     [(id)buttonNode setAnchorPoint:CGPointMake(0.5f, 0.5f)];
-    CGFloat buttonHeight = [(id)buttonNode size].height;
-    buttonNode.position = CGPointMake(x, y - buttonHeight * 0.5f);
-    y = y - buttonHeight - _itemSeparatorSize;
+    CGSize buttonSize = HLLayoutManagerGetNodeSize(buttonNode);
+    buttonNode.position = CGPointMake(x, y - buttonSize.height * 0.5f);
+    y = y - buttonSize.height - _itemSeparatorSize;
   }
   [self HL_layoutZ];
 

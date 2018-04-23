@@ -8,7 +8,7 @@
 
 #import "HLScene.h"
 
-#import "HLError.h"
+#import "HLLog.h"
 #import "SKNode+HLGestureTarget.h"
 
 NSString * const HLSceneChildNoCoding = @"HLSceneChildNoCoding";
@@ -155,18 +155,16 @@ static BOOL _sceneAssetsLoaded = NO;
   [super didChangeSize:oldSize];
 
   if (_childResizeWithScene) {
-    [_childResizeWithScene enumerateKeysAndObjectsUsingBlock:^(id key, id object, BOOL *stop){
-      [object setSize:self.size];
-      // Commented out: This generates code without warnings if child is declared SKNode *.
-      //    SEL selector = @selector(setSize:);
-      //    NSMethodSignature *methodSignature = [child methodSignatureForSelector:@selector(setSize:)];
-      //    if (methodSignature) {
-      //      NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
-      //      [invocation setTarget:child];
-      //      [invocation setSelector:selector];
-      //      [invocation setArgument:&selfSize atIndex:2];
-      //      [invocation invoke];
-      //    }
+    [_childResizeWithScene enumerateKeysAndObjectsUsingBlock:^(id key, SKNode *node, BOOL *stop){
+      CGSize selfSize = self.size;
+      SEL selector = @selector(setSize:);
+      NSMethodSignature *methodSignature = [node methodSignatureForSelector:selector];
+      if (methodSignature) {
+        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
+        invocation.selector = selector;
+        [invocation setArgument:&selfSize atIndex:2];
+        [invocation invokeWithTarget:node];
+      }
     }];
   }
 }
@@ -440,7 +438,7 @@ static BOOL _sceneAssetsLoaded = NO;
 + (void)assertSceneAssetsLoaded
 {
   if (!_sceneAssetsLoaded) {
-    HLError(HLLevelError, @"Scene assets not yet loaded.");
+    HLLog(HLLogError, @"Scene assets not yet loaded.");
   }
 }
 
@@ -463,13 +461,13 @@ static BOOL _sceneAssetsLoaded = NO;
   // note: It might be fairly trivial to do multiple layers of modal presentation, but
   // until we have a test case, just keep it to one.
   if (_modalPresentationNode) {
-    HLError(HLLevelError, @"HLScene already presenting a modal node; call dismissModalNode to dismiss.");
+    HLLog(HLLogError, @"HLScene already presenting a modal node; call dismissModalNode to dismiss.");
     return;
   }
   if (node.parent) {
     // note: Compromise between soft and hard fail: This is sloppiness on the part of the caller which
     // might reveal a logic error . . . but on the other hand, from our point of view it's no big deal.
-    HLError(HLLevelWarning, @"Node for modal presentation in HLScene already has a parent; removing.");
+    HLLog(HLLogWarning, @"Node for modal presentation in HLScene already has a parent; removing.");
     [node removeFromParent];
   }
 

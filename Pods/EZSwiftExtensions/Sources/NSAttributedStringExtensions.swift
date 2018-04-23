@@ -5,11 +5,14 @@
 //  Created by Lucas Farah on 18/02/16.
 //  Copyright (c) 2016 Lucas Farah. All rights reserved.
 //
-import UIKit
+
+#if os(iOS) || os(tvOS)
 
 extension NSAttributedString {
-    #if os(iOS)
     /// EZSE: Adds bold attribute to NSAttributedString and returns it
+
+    #if os(iOS)
+
     public func bold() -> NSAttributedString {
         guard let copy = self.mutableCopy() as? NSMutableAttributedString else { return self }
 
@@ -17,6 +20,7 @@ extension NSAttributedString {
         copy.addAttributes([NSFontAttributeName: UIFont.boldSystemFont(ofSize: UIFont.systemFontSize)], range: range)
         return copy
     }
+
     #endif
 
     /// EZSE: Adds underline attribute to NSAttributedString and returns it
@@ -29,6 +33,7 @@ extension NSAttributedString {
     }
 
     #if os(iOS)
+
     /// EZSE: Adds italic attribute to NSAttributedString and returns it
     public func italic() -> NSAttributedString {
         guard let copy = self.mutableCopy() as? NSMutableAttributedString else { return self }
@@ -41,13 +46,15 @@ extension NSAttributedString {
     /// EZSE: Adds strikethrough attribute to NSAttributedString and returns it
     public func strikethrough() -> NSAttributedString {
         guard let copy = self.mutableCopy() as? NSMutableAttributedString else { return self }
+
         let range = (self.string as NSString).range(of: self.string)
         let attributes = [
-        NSStrikethroughStyleAttributeName: NSNumber(value: NSUnderlineStyle.styleSingle.rawValue)]
+        NSStrikethroughStyleAttributeName: NSNumber(value: NSUnderlineStyle.styleSingle.rawValue as Int)]
         copy.addAttributes(attributes, range: range)
 
         return copy
     }
+
     #endif
 
     /// EZSE: Adds color attribute to NSAttributedString and returns it
@@ -66,3 +73,5 @@ public func += (left: inout NSAttributedString, right: NSAttributedString) {
     ns.append(right)
     left = ns
 }
+
+#endif

@@ -5,6 +5,9 @@
 //  Created by Cem Olcay on 12/08/15.
 //
 //
+
+#if os(iOS) || os(tvOS)
+
 import UIKit
 
 public typealias BlockButtonAction = (_ sender: BlockButton) -> Void
@@ -53,6 +56,7 @@ open class BlockButton: UIButton {
 
     public required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
+        defaultInit()
     }
 
     private func defaultInit() {
@@ -64,8 +68,8 @@ open class BlockButton: UIButton {
             UIControlEvents.touchCancel,
             UIControlEvents.touchDragExit
         ])
-        setTitleColor(.black, for: .normal)
-        setTitleColor(.blue, for: .selected)
+        setTitleColor(UIColor.black, for: UIControlState.normal)
+        setTitleColor(UIColor.blue, for: UIControlState.selected)
     }
 
     open func addAction(_ action: @escaping BlockButtonAction) {
@@ -111,3 +115,5 @@ open class BlockButton: UIButton {
         highlightLayer = nil
     }
 }
+
+#endif

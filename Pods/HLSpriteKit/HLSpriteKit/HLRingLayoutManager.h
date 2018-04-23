@@ -35,7 +35,8 @@ FOUNDATION_EXPORT const CGFloat HLRingLayoutManagerEpsilon;
 
  The order of the passed nodes determines position in the ring.  A ring position is
  skipped if the corresponding element in the array is not a kind of `SKNode` class.  (It
- is suggested to pass `[NSNull null]` to intentionally leave positions empty.)
+ is suggested to pass `[NSNull null]` or `[SKNode node]` to intentionally leave positions
+ empty.)
 
  Some configurations of a ring layout manager only make sense for a fixed number of
  nodes (see, for example, `setThetas:`).  In that case, only as many nodes will be laid
@@ -51,19 +52,18 @@ FOUNDATION_EXPORT const CGFloat HLRingLayoutManagerEpsilon;
 /// @name Getting and Setting Ring Geometry
 
 /**
- A constant offset used for the ring during layout.
+ A conceptual position used for the ring during layout, in point coordinate space.
 
- For example, if the `ringOffset` is `(10.0, 0.0)`, all nodes laid out will have ten
+ For example, if the `ringPosition` is `(10.0, 0.0)`, all nodes laid out will have ten
  points added to their `position.x`.  Default value is `(0.0, 0.0)`.
 
- Since layout normally positions nodes around the origin `(0, 0)`, this offset can also be
- considered to be the origin of the ring.
+ The ring calculated by layout uses this point as its center.
 */
-@property (nonatomic, assign) CGPoint ringOffset;
+@property (nonatomic, assign) CGPoint ringPosition;
 
 /**
- An array of `NSValue` `CGFloat`s specifying the radial coordinates for each node laid out
- in the ring.
+ An array of `CGFloat`s (wrapped in `NSNumber`) specifying the radial coordinates for each
+ node laid out in the ring.
 
  Nodes in the ring without a corresponding radius in the array will be positioned
  according to the last radius in the array.  Thus, passing a single value in the array
@@ -77,9 +77,9 @@ FOUNDATION_EXPORT const CGFloat HLRingLayoutManagerEpsilon;
  If more nodes are passed to `layout:` than have corresponding values in the array, those
  nodes will not be laid out.
 
- @param thetasRadians The angular coordinates (represented by `NSValue` `CGFloat`s) of
-                      each node (measured in radians, where 0 points right, and increasing
-                      counter-clockwise).
+ @param thetasRadians The angular coordinates (represented by `NSNumber`-wrapped
+                      `CGFloat`s) of each node (measured in radians, where 0 points right,
+                      and increasing counter-clockwise).
 */
 - (void)setThetas:(NSArray *)thetasRadians;
 
@@ -107,5 +107,22 @@ FOUNDATION_EXPORT const CGFloat HLRingLayoutManagerEpsilon;
 */
 - (void)setThetasWithInitialTheta:(CGFloat)initialThetaRadians
                    thetaIncrement:(CGFloat)thetaIncrementRadians;
+
+/**
+ Specifies angular coordinates for laid-out nodes as follows: The nodes will be spaced out
+ incrementally around the ring in a cluster centered on a given angular coordinate
+ ("theta").
+
+ @param centerThetaRadians The angular coordinate of the center of the cluster of laid-out
+                           nodes (measured in radians, where 0 points right, and
+                           increasing counter-clockwise).
+ 
+ @param thetaIncrementRadians The angular distance between successive nodes on the ring
+                              (measured in radians, where positive values indicate the
+                              counter-clockwise direction).  (Accordingly, a negative
+                              value means the nodes will be laid out in order clockwise.)
+*/
+- (void)setThetasWithCenterTheta:(CGFloat)centerThetaRadians
+                  thetaIncrement:(CGFloat)thetaIncrementRadians;
 
 @end

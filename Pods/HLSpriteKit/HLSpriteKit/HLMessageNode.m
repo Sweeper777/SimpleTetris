@@ -73,13 +73,15 @@ enum {
   _backgroundNode.zPosition = HLMessageNodeZPositionLayerBackground * zPositionLayerIncrement;
   [self addChild:_backgroundNode];
 
-  _verticalAlignmentMode = HLLabelNodeVerticalAlignFont;
+  _horizontalMargin = 0.0f;
+  _heightMode = HLLabelHeightModeFont;
 
   _messageAnimation = HLMessageNodeAnimationSlideLeft;
   _messageAnimationDuration = 0.1;
   _messageLingerDuration = 2.0;
 
   _labelNode = [SKLabelNode labelNodeWithFontNamed:@"Courier"];
+  _labelNode.horizontalAlignmentMode = SKLabelHorizontalAlignmentModeCenter;
   _labelNode.zPosition = (HLMessageNodeZPositionLayerLabel - HLMessageNodeZPositionLayerBackground) * zPositionLayerIncrement;
   _labelNode.fontSize = 14.0f;
   _labelNode.fontColor = [SKColor whiteColor];
@@ -94,7 +96,8 @@ enum {
   if (self) {
     _backgroundNode = [aDecoder decodeObjectForKey:@"backgroundNode"];
     _labelNode = [aDecoder decodeObjectForKey:@"labelNode"];
-    _verticalAlignmentMode = [aDecoder decodeIntegerForKey:@"verticalAlignmentMode"];
+    _horizontalMargin = (CGFloat)[aDecoder decodeDoubleForKey:@"horizontalMargin"];
+    _heightMode = [aDecoder decodeIntegerForKey:@"heightMode"];
     _messageAnimation = [aDecoder decodeIntegerForKey:@"messageAnimation"];
     _messageAnimationDuration = [aDecoder decodeDoubleForKey:@"messageAnimationDuration"];
     _messageLingerDuration = [aDecoder decodeDoubleForKey:@"messageLingerDuration"];
@@ -108,7 +111,8 @@ enum {
   [super encodeWithCoder:aCoder];
   [aCoder encodeObject:_backgroundNode forKey:@"backgroundNode"];
   [aCoder encodeObject:_labelNode forKey:@"labelNode"];
-  [aCoder encodeInteger:_verticalAlignmentMode forKey:@"verticalAlignmentMode"];
+  [aCoder encodeDouble:_horizontalMargin forKey:@"horizontalMargin"];
+  [aCoder encodeInteger:_heightMode forKey:@"heightMode"];
   [aCoder encodeInteger:_messageAnimation forKey:@"messageAnimation"];
   [aCoder encodeDouble:_messageAnimationDuration forKey:@"messageAnimationDuration"];
   [aCoder encodeDouble:_messageLingerDuration forKey:@"messageLingerDuration"];
@@ -128,7 +132,8 @@ enum {
       }
     }
   }
-  copy->_verticalAlignmentMode = _verticalAlignmentMode;
+  copy->_horizontalMargin = _horizontalMargin;
+  copy->_heightMode = _heightMode;
   copy->_messageAnimationDuration = _messageAnimationDuration;
   copy->_messageLingerDuration = _messageLingerDuration;
   copy->_messageSoundFile = _messageSoundFile;
@@ -165,9 +170,26 @@ enum {
   _labelNode.zPosition = HLMessageNodeZPositionLayerLabel * zPositionLayerIncrement;
 }
 
-- (void)setVerticalAlignmentMode:(HLLabelNodeVerticalAlignmentMode)verticalAlignmentMode
+- (SKLabelHorizontalAlignmentMode)horizontalAlignmentMode
 {
-  _verticalAlignmentMode = verticalAlignmentMode;
+  return _labelNode.horizontalAlignmentMode;
+}
+
+- (void)setHorizontalAlignmentMode:(SKLabelHorizontalAlignmentMode)horizontalAlignmentMode
+{
+  _labelNode.horizontalAlignmentMode = horizontalAlignmentMode;
+  [self HL_layoutLabelNode];
+}
+
+- (void)setHorizontalMargin:(CGFloat)horizontalMargin
+{
+  _horizontalMargin = horizontalMargin;
+  [self HL_layoutLabelNode];
+}
+
+- (void)setHeightMode:(HLLabelHeightMode)heightMode
+{
+  _heightMode = heightMode;
   [self HL_layoutLabelNode];
 }
 
@@ -312,9 +334,22 @@ enum {
 
 - (void)HL_layoutLabelNode
 {
-  _labelNode.position = CGPointMake((0.5f - _backgroundNode.anchorPoint.x) * _backgroundNode.size.width,
-                                    (0.5f - _backgroundNode.anchorPoint.y) * _backgroundNode.size.height);
-  [_labelNode alignForHLVerticalAlignmentMode:_verticalAlignmentMode];
+  CGFloat labelPositionX;
+  switch (_labelNode.horizontalAlignmentMode) {
+    case SKLabelHorizontalAlignmentModeLeft:
+      labelPositionX = -_backgroundNode.anchorPoint.x * _backgroundNode.size.width + _horizontalMargin;
+      break;
+    case SKLabelHorizontalAlignmentModeRight:
+      labelPositionX = (1.0f - _backgroundNode.anchorPoint.x) * _backgroundNode.size.width - _horizontalMargin;
+      break;
+    case SKLabelHorizontalAlignmentModeCenter:
+      labelPositionX = (0.5f - _backgroundNode.anchorPoint.x) * _backgroundNode.size.width;
+      break;
+  }
+  CGFloat labelPositionY = (0.5f - _backgroundNode.anchorPoint.y) * _backgroundNode.size.height;
+  _labelNode.position = CGPointMake(labelPositionX, labelPositionY);
+  [_labelNode alignVerticalWithAlignmentMode:SKLabelVerticalAlignmentModeCenter
+                                  heightMode:_heightMode];
 }
 
 @end
