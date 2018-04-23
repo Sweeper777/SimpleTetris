@@ -37,6 +37,8 @@ class GameViewController: UIViewController {
                 audioPlayer.volume = 0
             }
             
+            try? AVAudioSession.sharedInstance().setActive(true)
+            try? AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryAmbient)
             audioPlayer.play()
         }
     }
