@@ -35,7 +35,7 @@ class TetrisScene: SKScene {
                 overlay.removeFromParent()
                 if let myself = self {
                     myself.background.isPaused = false
-                    myself.gestureRecognizers.forEach { $1.isEnabled = true }
+                    myself.gestureRecognizers.forEach { $0.isEnabled = true }
                 }
             }
             overlay.run(SKAction.sequence([fadeOut, unpauseAction]))
@@ -159,9 +159,9 @@ class TetrisScene: SKScene {
         forcedDownRecog.numberOfTouchesRequired = 2
         gestureRecognizers.append(forcedDownRecog)
         gestureRecognizers.forEach {
-            self.view?.addGestureRecognizer($0.1)
+            self.view?.addGestureRecognizer($0)
             if !UserDefaults.standard.bool(forKey: "gestures") {
-                $0.1.isEnabled = false
+                $0.isEnabled = false
             }
         }
         
@@ -187,7 +187,7 @@ class TetrisScene: SKScene {
     }
     
     func gameOver() {
-        gestureRecognizers.forEach { $1.isEnabled = false }
+        gestureRecognizers.forEach { $0.isEnabled = false }
         self.background.removeAllActions()
         self.fallingTetrimino = nil
         let gameOverBanner = SKSpriteNode(imageNamed: "gameOver")
@@ -233,7 +233,7 @@ class TetrisScene: SKScene {
     }
     
     func pause() {
-        gestureRecognizers.forEach { $1.isEnabled = false }
+        gestureRecognizers.forEach { $0.isEnabled = false }
         self.background.isPaused = true
         pauseOverlay.alpha = 0
         self.addChild(pauseOverlay)

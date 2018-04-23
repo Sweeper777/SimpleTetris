@@ -10,7 +10,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         lastUsedBuild = Int(ez.appBuild ?? "0") ?? 0
-        FIRApp.configure()
+        FirebaseApp.configure()
         
         if !UserDefaults.standard.dictionaryRepresentation().keys.contains("bgm") {
             UserDefaults.standard.set(true, forKey: "bgm")
